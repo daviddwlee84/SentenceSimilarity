@@ -33,6 +33,12 @@ Not Sure
 * `data/stopwords.txt`
 * `data/test.csv`
 
+## TODO
+
+> Test the test during training: `python3 run.py --mode train --word-segment word --log-interval 1 --test-interval 1`
+
+* Pure Test
+
 ## Links
 
 ### PyTorch
