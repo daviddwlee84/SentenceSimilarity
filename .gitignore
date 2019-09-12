@@ -1,7 +1,7 @@
 data/
 model/
 quora_question_pairs_data/
-w2v/
+word2vec/
 output/
 
 # Byte-compiled / optimized / DLL files
