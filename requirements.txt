@@ -1,0 +1,9 @@
+torch
+torchvision
+keras
+tensorflow
+gensim
+numpy
+pandas
+jieba
+sklearn

@@ -4,6 +4,9 @@ quora_question_pairs_data/
 word2vec/
 output/
 
+# virtualenv on PKU server
+venv-py36/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

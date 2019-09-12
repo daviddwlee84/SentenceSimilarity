@@ -39,6 +39,23 @@ Not Sure
 
 * Pure Test
 
+## Notes about Virtualenv
+
+```sh
+# this will create a env_name folder in current directory
+virtualenv python=/path/to/python3.x env_name
+
+# activate the environment
+source ./env_name/bin/activate
+```
+
+Add alias in bashrc
+
+* Goto work directory and activate the environment
+  * `alias davidlee="cd /home/username/working_dir; source env_name/bin/activate"`
+* Use pip source when install packages
+  * `alias pipp="pip install -i https://pypi.tuna.tsinghua.edu.cn/simple"`
+
 ## Links
 
 ### PyTorch
