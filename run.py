@@ -67,7 +67,7 @@ def embedding_loader(X1, X2, embedding_folder=EMBEDDING, mode="word"):
     return tokenizer, torch.Tensor(embeddings_matrix)
 
 
-def train(args, model, device, optimizer, epoch):
+def train(args, model, device, optimizer):
     model.train()
 
     X1, X2, Y = training_data_loader(mode=args.word_segment)
@@ -77,7 +77,7 @@ def train(args, model, device, optimizer, epoch):
     stratified_folder = StratifiedKFold(
         n_splits=args.k_fold, random_state=args.seed, shuffle=True)
 
-    for train_index, test_index in stratified_folder.split(X1, Y):
+    for epoch, (train_index, test_index) in enumerate(stratified_folder.split(X1, Y)):
         X_fold_train1, X_fold_test1 = X1[train_index], X1[test_index]
         X_fold_train2, X_fold_test2 = X2[train_index], X2[test_index]
         Y_fold_train, Y_fold_test = Y[train_index], Y[test_index]
@@ -115,12 +115,16 @@ def train(args, model, device, optimizer, epoch):
             optimizer.step()
             if batch_idx % args.log_interval == 0:
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\t'.format(
-                    epoch, batch_idx *
+                    epoch + 1, batch_idx *
                     len(input_1), len(train_dataset.dataset),
                     100. * batch_idx / len(train_dataset), loss.item()))
             if batch_idx % args.test_interval == 0:
                 test(args, model, device, test_dataset)
                 model.train()  # switch the model mode back to train
+
+        if not args.not_save_model:
+            torch.save(model.state_dict(),
+                       f"{MODEL_PATH}/epoch_{epoch + 1}_{mode}.pkl")
 
 
 def test(args, model, device, test_loader):
@@ -149,7 +153,7 @@ def main():
     # Training settings
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
     parser.add_argument('--mode', type=str, default='train', metavar='M',
-                        help='train or test or predict mode (default: train)')
+                        help='train or test or both or predict mode (default: train)')
     parser.add_argument('--word-segment', type=str, default='word', metavar='WS',
                         help='word split mode (char/word) (default: word)')
     parser.add_argument('--batch-size', type=int, default=256, metavar='N',
@@ -174,8 +178,8 @@ def main():
                         help='how many batches to wait before logging training status')
     parser.add_argument('--test-interval', type=int, default=100, metavar='N',
                         help='how many batches to test during training')
-    parser.add_argument('--save-model', action='store_true', default=True,
-                        help='For saving the current Model')
+    parser.add_argument('--not-save-model', action='store_false', default=True,
+                        help='For not saving the current model')
 
     args = parser.parse_args()
 
@@ -196,11 +200,11 @@ def main():
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(
         args.beta1, args.beta2), eps=args.epsilon)
 
-    for epoch in range(1, args.epochs + 1):
-        train(args, model, device, optimizer, epoch)
-        if (args.save_model):
-            torch.save(model.state_dict(),
-                       f"{MODEL_PATH}/epoch_{epoch}_{mode}.pkl")
+    if args.mode == "train" or args.mode == "both":
+        train(args, model, device, optimizer)
+
+    if args.mode == "test" or args.mode == "both":
+        pass
         # test(args, model, device, test_loader)
 
 
