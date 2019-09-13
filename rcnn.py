@@ -84,7 +84,7 @@ class Inception3(nn.Module):
 
 
 class EnhancedRCNN(nn.Module):
-    def __init__(self, embeddings_matrix, max_len, padding_idx, num_class=2, lstm_dim=192, dropout_rate=0.2, linear_size=384, conv_dim=64):
+    def __init__(self, embeddings_matrix, max_len, padding_idx, num_class=1, lstm_dim=192, dropout_rate=0.2, linear_size=384, conv_dim=64):
         super(EnhancedRCNN, self).__init__()
 
         self.max_len = max_len

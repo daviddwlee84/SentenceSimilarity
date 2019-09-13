@@ -97,11 +97,11 @@ def train(args, model, device, optimizer):
             list_tokenized_test2, maxlen=args.max_len)
 
         train_tensor = dataset.TensorDataset(torch.tensor(input_train1, dtype=torch.long), torch.tensor(
-            input_train2, dtype=torch.long), torch.tensor(Y_fold_train.values, dtype=torch.long))
+            input_train2, dtype=torch.long), torch.tensor(Y_fold_train.values, dtype=torch.float))
         train_dataset = dataset.DataLoader(
             train_tensor, batch_size=args.batch_size)
         test_tensor = dataset.TensorDataset(torch.tensor(input_test1, dtype=torch.long), torch.tensor(
-            input_test2, dtype=torch.long), torch.tensor(Y_fold_test.values, dtype=torch.long))
+            input_test2, dtype=torch.long), torch.tensor(Y_fold_test.values, dtype=torch.float))
         test_dataset = dataset.DataLoader(
             test_tensor, batch_size=args.test_batch_size)
 
@@ -110,7 +110,7 @@ def train(args, model, device, optimizer):
                 device), input_2.to(device), target.to(device)
             optimizer.zero_grad()
             output = model(input_1, input_2)
-            loss = F.nll_loss(output, target)
+            loss = F.binary_cross_entropy(output, target.view_as(output))
             loss.backward()
             optimizer.step()
             if batch_idx % args.log_interval == 0:
@@ -137,9 +137,9 @@ def test(args, model, device, test_loader):
                 device), input_2.to(device), target.to(device)
             output = model(input_1, input_2)
             # sum up batch loss
-            test_loss += F.nll_loss(output, target, reduction='sum').item()
-            # get the index of the max log-probability
-            pred = output.argmax(dim=1, keepdim=True)
+            test_loss += F.binary_cross_entropy(output,
+                                                target.view_as(output), reduction='sum').item()
+            pred = output.round()
             correct += pred.eq(target.view_as(pred)).sum().item()
 
     test_loss /= len(test_loader.dataset)
@@ -185,6 +185,7 @@ def main():
 
     use_cuda = not args.no_cuda and torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
+    print("Use device:", device)
 
     torch.manual_seed(args.seed)
 
