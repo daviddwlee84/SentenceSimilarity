@@ -120,6 +120,7 @@ def train(args, model, device, optimizer, epoch):
                     100. * batch_idx / len(train_dataset), loss.item()))
             if batch_idx % args.test_interval == 0:
                 test(args, model, device, test_dataset)
+                model.train()  # switch the model mode back to train
 
 
 def test(args, model, device, test_loader):
@@ -173,15 +174,15 @@ def main():
                         help='how many batches to wait before logging training status')
     parser.add_argument('--test-interval', type=int, default=100, metavar='N',
                         help='how many batches to test during training')
+    parser.add_argument('--save-model', action='store_true', default=True,
+                        help='For saving the current Model')
 
-    parser.add_argument('--save-model', action='store_true', default=False,
-                        help='For Saving the current Model')
     args = parser.parse_args()
+
     use_cuda = not args.no_cuda and torch.cuda.is_available()
+    device = torch.device("cuda" if use_cuda else "cpu")
 
     torch.manual_seed(args.seed)
-
-    device = torch.device("cuda" if use_cuda else "cpu")
 
     # additional custom parameter
     args.k_fold = 10
