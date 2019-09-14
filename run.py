@@ -50,11 +50,16 @@ def training_data_loader(mode="word", dataset="Ant"):
 
 
 def embedding_loader(X1, X2, embedding_folder=EMBEDDING, mode="word", dataset="Ant"):
-    tokenizer = keras.preprocessing.text.Tokenizer()
-    tokenizer.fit_on_texts(list(X1.values))
-    tokenizer.fit_on_texts(list(X2.values))
-    with open(f'{EMBEDDING}/{dataset}_tokenizer.pickle', 'wb') as handle:
-        pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    embed_pickle_file = f'{EMBEDDING}/{dataset}_tokenizer.pickle'
+    if os.path.isfile(embed_pickle_file):
+        with open(embed_pickle_file, 'rb') as handle:
+            tokenizer = pickle.load(handle)
+    else:
+        tokenizer = keras.preprocessing.text.Tokenizer()
+        tokenizer.fit_on_texts(list(X1.values))
+        tokenizer.fit_on_texts(list(X2.values))
+        with open(embed_pickle_file, 'wb') as handle:
+            pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
     word_index = tokenizer.word_index
 
     if dataset == "Ant":
@@ -212,6 +217,8 @@ def main():
 
     X1, X2, _ = training_data_loader(mode=args.word_segment, dataset=args.dataset)
     _, embeddings_matrix = embedding_loader(X1, X2, mode=args.word_segment, dataset=args.dataset)
+
+    import ipdb; ipdb.set_trace()
 
     model = EnhancedRCNN(embeddings_matrix, args.max_len, PAD_IDX).to(device)
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(
