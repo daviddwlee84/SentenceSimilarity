@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import keras
 from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import f1_score, recall_score, precision_score # TODO
 from gensim.models.keyedvectors import KeyedVectors
 
 import torch
@@ -14,7 +15,6 @@ import torch.optim as optim
 import torch.utils.data as dataset
 from torchvision import transforms
 
-from preprocess import DATA_PATH
 from rcnn import EnhancedRCNN
 
 MODEL_PATH = "model"
@@ -23,36 +23,50 @@ EMBEDDING = "word2vec"
 PAD_IDX = 0
 
 
-def training_data_loader(data_folder=DATA_PATH, mode="word"):
-    data = pd.read_csv(f"{data_folder}/sentence_{mode}_train.csv",
-                       header=None, names=["doc1", "doc2", "label"])
+def training_data_loader(mode="word", dataset="Ant"):
+    if dataset == "Ant":
+        data = pd.read_csv(f"data/sentence_{mode}_train.csv",
+                        header=None, names=["doc1", "doc2", "label"])
 
-    data["doc1"] = data.apply(lambda x: str(x[0]), axis=1)
-    data["doc2"] = data.apply(lambda x: str(x[1]), axis=1)
-    X1 = data["doc1"]
-    X2 = data["doc2"]
-    Y = data["label"]
+        data["doc1"] = data.apply(lambda x: str(x[0]), axis=1)
+        data["doc2"] = data.apply(lambda x: str(x[1]), axis=1)
+        X1 = data["doc1"]
+        X2 = data["doc2"]
+        Y = data["label"]
+
+    elif dataset == "Quora":
+        data = pd.read_csv(f"raw_data/train.csv", encoding="utf-8")
+        data['id'] = data['id'].apply(str)
+
+        data['question1'].fillna('', inplace=True)
+        data['question2'].fillna('', inplace=True)
+
+        X1 = data['question1']
+        X2 = data['question2']
+
+        Y = data['is_duplicate'] 
 
     return X1, X2, Y
 
 
-def embedding_loader(X1, X2, embedding_folder=EMBEDDING, mode="word"):
+def embedding_loader(X1, X2, embedding_folder=EMBEDDING, mode="word", dataset="Ant"):
     tokenizer = keras.preprocessing.text.Tokenizer()
     tokenizer.fit_on_texts(list(X1.values))
     tokenizer.fit_on_texts(list(X2.values))
-    with open(f'{EMBEDDING}/tokenizer.pickle', 'wb') as handle:
+    with open(f'{EMBEDDING}/{dataset}_tokenizer.pickle', 'wb') as handle:
         pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
     word_index = tokenizer.word_index
 
-    embed_model = KeyedVectors.load_word2vec_format(
-        f"{EMBEDDING}/substoke_{mode}.vec.avg", binary=False, encoding='utf8')
-
-    # embeddings_matrix = torch.FloatTensor(embed_model.vectors)
+    if dataset == "Ant":
+        embed_model = KeyedVectors.load_word2vec_format(
+            f"{EMBEDDING}/substoke_{mode}.vec.avg", binary=False, encoding='utf8')
+    elif dataset == "Quora":
+        embed_model = KeyedVectors.load_word2vec_format(
+            f"{EMBEDDING}/glove.word2vec.txt", binary=False, encoding='utf8')
 
     embeddings_index = {}
     embeddings_matrix = np.zeros(
         (len(word_index) + 1, embed_model.vector_size))
-    # word2idx = {"_PAD": PAD_IDX}
     vocab_list = [(k, embed_model.wv[k])
                   for k, v in embed_model.wv.vocab.items()]
 
@@ -70,9 +84,9 @@ def embedding_loader(X1, X2, embedding_folder=EMBEDDING, mode="word"):
 def train(args, model, device, optimizer):
     model.train()
 
-    X1, X2, Y = training_data_loader(mode=args.word_segment)
+    X1, X2, Y = training_data_loader(mode=args.word_segment, dataset=args.dataset)
     tokenizer, embeddings_matrix = embedding_loader(
-        X1, X2, mode=args.word_segment)
+        X1, X2, mode=args.word_segment, dataset=args.dataset)
 
     stratified_folder = StratifiedKFold(
         n_splits=args.k_fold, random_state=args.seed, shuffle=True)
@@ -124,11 +138,11 @@ def train(args, model, device, optimizer):
 
         if not args.not_save_model:
             torch.save(model.state_dict(),
-                       f"{MODEL_PATH}/epoch_{epoch + 1}_{mode}.pkl")
+                       f"{MODEL_PATH}/{dataset}_epoch_{epoch + 1}_{mode}.pkl")
 
 
 def test(args, model, device, test_loader):
-    model.eval()
+    model.eval() # Turn on evaluation mode which disables dropout
     test_loss = 0
     correct = 0
     with torch.no_grad():
@@ -152,10 +166,12 @@ def test(args, model, device, test_loader):
 def main():
     # Training settings
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
+    parser.add_argument('--dataset', type=str, default='Ant', metavar='D',
+                        help='[Ant] Finance or [Quora] Question Pairs (default: Ant)')
     parser.add_argument('--mode', type=str, default='train', metavar='M',
                         help='train or test or both or predict mode (default: train)')
     parser.add_argument('--word-segment', type=str, default='word', metavar='WS',
-                        help='word split mode (char/word) (default: word)')
+                        help='chinese word split mode (char/word) (default: word)')
     parser.add_argument('--batch-size', type=int, default=256, metavar='N',
                         help='input batch size for training (default: 256)')
     parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
@@ -179,7 +195,7 @@ def main():
     parser.add_argument('--test-interval', type=int, default=100, metavar='N',
                         help='how many batches to test during training')
     parser.add_argument('--not-save-model', action='store_false', default=True,
-                        help='For not saving the current model')
+                        help='for not saving the current model')
 
     args = parser.parse_args()
 
@@ -194,8 +210,8 @@ def main():
     args.max_len = 48
     args.max_feature = 20000
 
-    X1, X2, _ = training_data_loader(mode=args.word_segment)
-    _, embeddings_matrix = embedding_loader(X1, X2, mode=args.word_segment)
+    X1, X2, _ = training_data_loader(mode=args.word_segment, dataset=args.dataset)
+    _, embeddings_matrix = embedding_loader(X1, X2, mode=args.word_segment, dataset=args.dataset)
 
     model = EnhancedRCNN(embeddings_matrix, args.max_len, PAD_IDX).to(device)
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(

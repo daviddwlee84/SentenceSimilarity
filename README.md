@@ -1,7 +1,4 @@
-# ANT Financial Competition
-
-* [Original competition](https://dc.cloud.alipay.com/index#/topic/intro?id=3)
-* [Long-term competition with same topic](https://dc.cloud.alipay.com/index#/topic/intro?id=8)
+# Enhanced RCNN
 
 ## Getting Started
 
@@ -10,34 +7,93 @@
 python3 preprocess.py [word/char] train
 
 # Training
-python3 run.py --mode train --word-segment [word/char]
+## Ant
+python3 run.py --dataset Ant --mode train --word-segment [word/char]
+## Quora
+python3 run.py --dataset Quora --mode train
 ```
 
 ## Data
 
 Original
 
-* `raw_data/competition_train.csv`
-* `word2vec/substoke_char.vec.avg`
-* `word2vec/substoke_word.vec.avg`
+* `raw_data/competition_train.csv` - Ant Financial
+* `word2vec/substoke_char.vec.avg` - Ant Financial
+* `word2vec/substoke_word.vec.avg` - Ant Financial
+* `word2vec/glove.word2vec.txt` - Quora Question Pairs
+
+  ```sh
+  wget http://nlp.stanford.edu/data/glove.840B.300d.zip
+  unzip glove.840B.300d
+  ```
+
+  ```py
+  from gensim.scripts.glove2word2vec import glove2word2vec
+  _ = glove2word2vec('glove.840B.300d.txt', 'word2vec/glove.word2vec.txt')
+  ```
+
+  ```sh
+  rm glove.840B*
+  ```
 
 Generated
 
-* `data/sentence_char_train.csv`
-* `data/sentence_word_train.csv`
+* `data/sentence_char_train.csv` - Ant Financial
+* `data/sentence_word_train.csv` - Ant Financial
 * `model/*`
-* `word2vec/tokenizer.pickle`
+* `word2vec/Ant_tokenizer.pickle` - Ant Financial
+* `word2vec/Quora_tokenizer.pickle` - Quora Question Pairs
 
 Not Sure
 
-* `data/stopwords.txt`
-* `data/test.csv`
+* `data/stopwords.txt` - Ant Financial
+* `data/test.csv` - Ant Financial
+
+## Dataset
+
+### ANT Financial Competition
+
+* [Original competition](https://dc.cloud.alipay.com/index#/topic/intro?id=3)
+* [Long-term competition with same topic](https://dc.cloud.alipay.com/index#/topic/intro?id=8)
+
+### Quora Question Pairs
+
+```sh
+kaggle competitions download -c quora-question-pairs
+unzip test.csv -d raw_data
+unzip train.csv -d raw_data
+rm *.zip
+```
+
+Goal: classify whether question pairs are duplicates or not => predict the probability that the questions are duplicates (a number between 0 and 1)
+
+Evaluation: log loss between the predicted values and the ground truth
+
+* [Kaggle - Quora Question Pairs](https://www.kaggle.com/c/quora-question-pairs)
+* [Quora - First Quora Dataset Release: Question Pairs](https://www.quora.com/q/quoradata/First-Quora-Dataset-Release-Question-Pairs)
+
+Data
+
+* 400K rows in train set and about 2.35M rows in test set
+* 6 columns in train set but only 3 of them are in test set
+  * train set
+    * id - the id of a training set question pair
+    * qid1, qid2 - unique ids of each question (only available in train.csv)
+    * question1, question2 - the full text of each question
+    * is_duplicate - the target variable, set to 1 if question1 and question2 have essentially the same meaning, and 0 otherwise
+  * test set
+    * test_id
+    * question1, question2
+* about 63% non-duplicate questions and 37% duplicate questions in the training data set
 
 ## TODO
 
 > Test the test during training: `python3 run.py --mode train --word-segment word --log-interval 1 --test-interval 1`
 
 * Pure Test
+* More evaluation matrics: recall & f1-score
+* Predict mode
+* Quora dataset
 
 ## Notes about Virtualenv
 
@@ -82,6 +138,10 @@ Add alias in bashrc
 * [torch.optim](https://pytorch.org/docs/stable/optim.html)
   * `torch.optim.Adam(params, lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, amsgrad=False`
 * [How to do product of matrices in PyTorch](https://stackoverflow.com/questions/44524901/how-to-do-product-of-matrices-in-pytorch)
+
+### Gensim
+
+* [scripts.glove2word2vec – Convert glove format to word2vec](https://radimrehurek.com/gensim/scripts/glove2word2vec.html)
 
 ### Others
 
