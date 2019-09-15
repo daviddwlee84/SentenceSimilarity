@@ -210,7 +210,7 @@ def main():
                         help='how many batches to wait before logging training status')
     parser.add_argument('--test-interval', type=int, default=100, metavar='N',
                         help='how many batches to test during training')
-    parser.add_argument('--not-save-model', action='store_false', default=True,
+    parser.add_argument('--not-save-model', action='store_true', default=False,
                         help='for not saving the current model')
 
     args = parser.parse_args()
