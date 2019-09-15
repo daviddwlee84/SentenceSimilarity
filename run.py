@@ -50,8 +50,12 @@ def training_data_loader(mode="word", dataset="Ant"):
 
 
 def embedding_loader(X1, X2, embedding_folder=EMBEDDING, mode="word", dataset="Ant"):
-    tokenizer_pickle_file = f'{embedding_folder}/{dataset}_tokenizer.pickle'
-    embed_pickle_file = f'{embedding_folder}/{dataset}_embed_matrix.pickle'
+    if dataset == "Ant":
+        tokenizer_pickle_file = f'{embedding_folder}/{dataset}_{mode}_tokenizer.pickle'
+        embed_pickle_file = f'{embedding_folder}/{dataset}_{mode}_embed_matrix.pickle'
+    elif dataset == "Quora":
+        tokenizer_pickle_file = f'{embedding_folder}/{dataset}_tokenizer.pickle'
+        embed_pickle_file = f'{embedding_folder}/{dataset}_embed_matrix.pickle'
 
     # Load tokenizer
     if os.path.isfile(tokenizer_pickle_file):
