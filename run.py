@@ -12,7 +12,7 @@ from gensim.models.keyedvectors import KeyedVectors
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
-import torch.utils.data as dataset
+import torch.utils.data as torch_data
 from torchvision import transforms
 
 from rcnn import EnhancedRCNN
@@ -126,13 +126,13 @@ def train(args, model, device, optimizer):
         input_test2 = keras.preprocessing.sequence.pad_sequences(
             list_tokenized_test2, maxlen=args.max_len)
 
-        train_tensor = dataset.TensorDataset(torch.tensor(input_train1, dtype=torch.long), torch.tensor(
+        train_tensor = torch_data.TensorDataset(torch.tensor(input_train1, dtype=torch.long), torch.tensor(
             input_train2, dtype=torch.long), torch.tensor(Y_fold_train.values, dtype=torch.float))
-        train_dataset = dataset.DataLoader(
+        train_dataset = torch_data.DataLoader(
             train_tensor, batch_size=args.batch_size)
-        test_tensor = dataset.TensorDataset(torch.tensor(input_test1, dtype=torch.long), torch.tensor(
+        test_tensor = torch_data.TensorDataset(torch.tensor(input_test1, dtype=torch.long), torch.tensor(
             input_test2, dtype=torch.long), torch.tensor(Y_fold_test.values, dtype=torch.float))
-        test_dataset = dataset.DataLoader(
+        test_dataset = torch_data.DataLoader(
             test_tensor, batch_size=args.test_batch_size)
 
         for batch_idx, (input_1, input_2, target) in enumerate(train_dataset):
@@ -153,13 +153,12 @@ def train(args, model, device, optimizer):
                 model.train()  # switch the model mode back to train
 
         if not args.not_save_model:
-            if dataset == "Ant":
+            if args.dataset == "Ant":
                 torch.save(model.state_dict(),
-                           f"{MODEL_PATH}/{dataset}_epoch_{epoch + 1}_{args.word_segment}.pkl")
-            elif dataset == "Quora":
+                           f"{MODEL_PATH}/{args.dataset}_epoch_{epoch + 1}_{args.word_segment}.pkl")
+            elif args.dataset == "Quora":
                 torch.save(model.state_dict(),
-                           f"{MODEL_PATH}/{dataset}_epoch_{epoch + 1}.pkl")              
-
+                           f"{MODEL_PATH}/{args.dataset}_epoch_{epoch + 1}.pkl")
 
 def test(args, model, device, test_loader):
     model.eval() # Turn on evaluation mode which disables dropout
