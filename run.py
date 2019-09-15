@@ -153,8 +153,12 @@ def train(args, model, device, optimizer):
                 model.train()  # switch the model mode back to train
 
         if not args.not_save_model:
-            torch.save(model.state_dict(),
-                       f"{MODEL_PATH}/{dataset}_epoch_{epoch + 1}_{mode}.pkl")
+            if dataset == "Ant":
+                torch.save(model.state_dict(),
+                           f"{MODEL_PATH}/{dataset}_epoch_{epoch + 1}_{args.word_segment}.pkl")
+            elif dataset == "Quora":
+                torch.save(model.state_dict(),
+                           f"{MODEL_PATH}/{dataset}_epoch_{epoch + 1}.pkl")              
 
 
 def test(args, model, device, test_loader):
