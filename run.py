@@ -50,38 +50,49 @@ def training_data_loader(mode="word", dataset="Ant"):
 
 
 def embedding_loader(X1, X2, embedding_folder=EMBEDDING, mode="word", dataset="Ant"):
-    embed_pickle_file = f'{EMBEDDING}/{dataset}_tokenizer.pickle'
-    if os.path.isfile(embed_pickle_file):
-        with open(embed_pickle_file, 'rb') as handle:
+    tokenizer_pickle_file = f'{embedding_folder}/{dataset}_tokenizer.pickle'
+    embed_pickle_file = f'{embedding_folder}/{dataset}_embed_matrix.pickle'
+
+    # Load tokenizer
+    if os.path.isfile(tokenizer_pickle_file):
+        with open(tokenizer_pickle_file, 'rb') as handle:
             tokenizer = pickle.load(handle)
     else:
         tokenizer = keras.preprocessing.text.Tokenizer()
         tokenizer.fit_on_texts(list(X1.values))
         tokenizer.fit_on_texts(list(X2.values))
-        with open(embed_pickle_file, 'wb') as handle:
+        with open(tokenizer_pickle_file, 'wb') as handle:
             pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    word_index = tokenizer.word_index
 
-    if dataset == "Ant":
-        embed_model = KeyedVectors.load_word2vec_format(
-            f"{EMBEDDING}/substoke_{mode}.vec.avg", binary=False, encoding='utf8')
-    elif dataset == "Quora":
-        embed_model = KeyedVectors.load_word2vec_format(
-            f"{EMBEDDING}/glove.word2vec.txt", binary=False, encoding='utf8')
+    # Load embedding matrix
+    if os.path.isfile(embed_pickle_file):
+        with open(embed_pickle_file, 'rb') as handle:
+            embeddings_matrix = pickle.load(handle)
+    else:    
+        word_index = tokenizer.word_index
 
-    embeddings_index = {}
-    embeddings_matrix = np.zeros(
-        (len(word_index) + 1, embed_model.vector_size))
-    vocab_list = [(k, embed_model.wv[k])
-                  for k, v in embed_model.wv.vocab.items()]
+        if dataset == "Ant":
+            embed_model = KeyedVectors.load_word2vec_format(
+                f"{embedding_folder}/substoke_{mode}.vec.avg", binary=False, encoding='utf8')
+        elif dataset == "Quora":
+            embed_model = KeyedVectors.load_word2vec_format(
+                f"{embedding_folder}/glove.word2vec.txt", binary=False, encoding='utf8')
 
-    for word, i in word_index.items():
-        if word in embed_model:
-            embedding_vector = embed_model[word]
-        else:
-            embedding_vector = None
-        if embedding_vector is not None:
-            embeddings_matrix[i] = embedding_vector
+        embeddings_matrix = np.zeros(
+            (len(word_index) + 1, embed_model.vector_size))
+        vocab_list = [(k, embed_model.wv[k])
+                    for k, v in embed_model.wv.vocab.items()]
+
+        for word, i in word_index.items():
+            if word in embed_model:
+                embedding_vector = embed_model[word]
+            else:
+                embedding_vector = None
+            if embedding_vector is not None:
+                embeddings_matrix[i] = embedding_vector
+
+        with open(embed_pickle_file, 'wb') as handle:
+            pickle.dump(embeddings_matrix, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     return tokenizer, torch.Tensor(embeddings_matrix)
 
@@ -217,8 +228,6 @@ def main():
 
     X1, X2, _ = training_data_loader(mode=args.word_segment, dataset=args.dataset)
     _, embeddings_matrix = embedding_loader(X1, X2, mode=args.word_segment, dataset=args.dataset)
-
-    import ipdb; ipdb.set_trace()
 
     model = EnhancedRCNN(embeddings_matrix, args.max_len, PAD_IDX).to(device)
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(
