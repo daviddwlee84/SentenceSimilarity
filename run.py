@@ -260,31 +260,35 @@ def predict(args, model, tokenizer, device):
 def main():
     # Training settings
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
-    parser.add_argument('--dataset', type=str, default='Ant', metavar='D',
+    parser.add_argument('--dataset', type=str, default='Ant', metavar='dataset',
+                        choices=['Ant', 'Quora'],
                         help='[Ant] Finance or [Quora] Question Pairs (default: Ant)')
-    parser.add_argument('--mode', type=str, default='train', metavar='M',
-                        help='train or test or predict mode (default: train)')
-    parser.add_argument('--model', type=str, default='ERCNN', metavar='M',
-                        help='ERCNN (default), Transformer')
+    parser.add_argument('--mode', type=str, default='train', metavar='mode',
+                        choices=['train', 'test', 'predict'],
+                        help='script mode [train/test/predict] (default: train)')
+    parser.add_argument('--model', type=str, default='ERCNN', metavar='model',
+                        choices=['ERCNN', 'Transformer'],
+                        help='model to use [ERCNN/Transformer] (default: ERCNN)')
     parser.add_argument('--word-segment', type=str, default='word', metavar='WS',
-                        help='chinese word split mode (char/word) (default: word)')
+                        choices=['word', 'char'],
+                        help='chinese word split mode [word/char] (default: word)')
     parser.add_argument('--batch-size', type=int, default=256, metavar='N',
                         help='input batch size for training (default: 256)')
     parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                         help='input batch size for testing (default: 1000)')
     parser.add_argument('--epochs', type=int, default=15, metavar='N',
                         help='number of epochs to train (default: 15)')
-    parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
+    parser.add_argument('--lr', type=float, default=0.001, metavar='N',
                         help='learning rate (default: 0.001)')
-    parser.add_argument('--beta1', type=float, default=0.9, metavar='B1',
+    parser.add_argument('--beta1', type=float, default=0.9, metavar='N',
                         help='beta 1 for Adam optimizer (default: 0.9)')
-    parser.add_argument('--beta2', type=float, default=0.999, metavar='B2',
+    parser.add_argument('--beta2', type=float, default=0.999, metavar='N',
                         help='beta 2 for Adam optimizer (default: 0.999)')
-    parser.add_argument('--epsilon', type=float, default=1e-08, metavar='E',
+    parser.add_argument('--epsilon', type=float, default=1e-08, metavar='N',
                         help='epsilon for Adam optimizer (default: 1e-08)')
     parser.add_argument('--no-cuda', action='store_true', default=False,
                         help='disables CUDA training')
-    parser.add_argument('--seed', type=int, default=16, metavar='S',
+    parser.add_argument('--seed', type=int, default=16, metavar='N',
                         help='random seed (default: 16)')
     parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                         help='how many batches to wait before logging training status')
