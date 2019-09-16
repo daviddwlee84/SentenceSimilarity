@@ -113,22 +113,25 @@ Data
 
 (during training)
 
-| Model             | Word Segment | Batch Preprocessing | Epoch | Average Loss | Accuracy |
-| ----------------- | ------------ | ------------------- | ----- | ------------ | -------- |
-| Random            | -            | -                   | -     | -            | 82%      |
-| ERCN              | word         | none                | 10    | 0.4611       | 82%      |
-| ERCN              | char         | none                | 10    | 0.4611       | 82%      |
-| ERCNN-Transformer | char         | none                | 10    | 0.4128       | 83%      |
+| Model             | Word Segment | Embedding     | Batch Preprocessing | Epoch | Average Loss | Accuracy | Remark                              |
+| ----------------- | ------------ | ------------- | ------------------- | ----- | ------------ | -------- | ----------------------------------- |
+| Random            | -            | -             | -                   | -     | -            | 82%      | -                                   |
+| Paper (rejected)  | char         | cw2vec (100d) | -                   | -     | -            | 76.89%   | not sure how dev set been generated |
+| original Keras    | word         | cw2vec (100d) | none                | -     | -            | 83%      | learned nothing???                  |
+| ERCN              | word         | cw2vec (100d) | none                | 10    | 0.4611       | 82%      | learned nothing                     |
+| ERCN              | char         | cw2vec (100d) | none                | 10    | 0.4611       | 82%      | learned nothing                     |
+| ERCNN-Transformer | char         | cw2vec (100d) | none                | 10    | 0.4128       | 83%      | learned nothing                     |
 
 ### Quora
 
 (during training)
 
-| Model             | Batch Preprocessing | Epoch | Average Loss | Accuracy |
-| ----------------- | ------------------- | ----- | ------------ | -------- |
-| Random            | -                   | -     | -            | 63%      |
-| ERCNN             | none                | 10    | 0.4094       | 80%      |
-| ERCNN-Transformer | none                | 5     | 10.2011      | 63%      |
+| Model             | Embedding    | Batch Preprocessing | Epoch | Average Loss | Accuracy | Remark                                             |
+| ----------------- | ------------ | ------------------- | ----- | ------------ | -------- | -------------------------------------------------- |
+| Random            | GloVe (300d) | -                   | -     | -            | 63%      | -                                                  |
+| Paper (rejected)  | GloVe (300d) | -                   | -     | -            | 88.15%   | not sure how dev set been generated                |
+| ERCNN             | GloVe (300d) | none                | 10    | 0.4094       | 80%      | using the same model... but this learned something |
+| ERCNN-Transformer | GloVe (300d) | none                | 5     | 10.2011      | 63%      | learned nothing (to be improved)                   |
 
 ## TODO
 
