@@ -7,7 +7,8 @@ import os
 RAW_DATA_PATH = "raw_data"
 DATA_PATH = "data"
 
-def stopwordslist(filepath):
+
+def stopwordslist(filepath='data/stopwords.txt'):
     stopwords = [line.strip() for line in codecs.open(filepath, 'r', 'utf-8').readlines()]
     return stopwords
 

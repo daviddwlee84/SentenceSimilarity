@@ -176,7 +176,7 @@ class EnhancedRCNN_Transformer(nn.Module):
         self.cnn3 = Inception3(self.embedding.embedding_dim)
         # embed_dim must be divisible by num_heads
         encoder_layer = nn.TransformerEncoderLayer(
-            self.embedding.embedding_dim, nhead=2, dim_feedforward=transformer_dim, dropout=dropout_rate)
+            self.embedding.embedding_dim, nhead=5, dim_feedforward=transformer_dim, dropout=dropout_rate)
         self.q1_transformer = nn.TransformerEncoder(
             encoder_layer, num_layers=2)
         self.q2_transformer = nn.TransformerEncoder(
@@ -207,18 +207,18 @@ class EnhancedRCNN_Transformer(nn.Module):
         x1 = self.dropout(q1_embed)
         x2 = self.dropout(q2_embed)
 
-        # batch_size, max_len, transformer_dim
+        # batch_size, max_len, embed_dim
         q1_output = self.q1_transformer(x1)
         q2_output = self.q2_transformer(x2)
 
-        # batch_size, transformer_dim, max_len
+        # batch_size, embed_dim, max_len
         q1_encoded_permute = q1_output.permute(0, 2, 1)
         q2_encoded_permute = q2_output.permute(0, 2, 1)
 
-        # batch_size, max_len, transformer_dim
+        # batch_size, max_len, embed_dim
         q1_aligned, q2_aligned = self.soft_align(q1_output, q2_output)
 
-        # batch_size, transformer_dim
+        # batch_size, embed_dim
         sentence1_att_mean, sentence1_att_max = mean_max(q1_aligned)
         sentence2_att_mean, sentence2_att_max = mean_max(q2_aligned)
 

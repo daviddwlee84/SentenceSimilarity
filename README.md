@@ -11,6 +11,18 @@ python3 preprocess.py [word/char] train
 python3 run.py --dataset Ant --model [ERCNN/Transformer] --mode train --word-segment [word/char]
 ## Quora
 python3 run.py --dataset Quora --model [ERCNN/Transformer] --mode train
+
+# Test (using entire training set)
+## Ant
+python3 run.py --dataset Ant --model [ERCNN/Transformer] --mode test --word-segment [word/char]
+## Quora
+python3 run.py --dataset Quora --model [ERCNN/Transformer] --mode test
+
+# Predict (input two sentence manually)
+## Ant
+python3 run.py --dataset Ant --model [ERCNN/Transformer] --mode predict --word-segment [word/char]
+## Quora
+python3 run.py --dataset Quora --model [ERCNN/Transformer] --mode predict
 ```
 
 ## Data
@@ -56,6 +68,10 @@ Not Sure
 * [Original competition](https://dc.cloud.alipay.com/index#/topic/intro?id=3)
 * [Long-term competition with same topic](https://dc.cloud.alipay.com/index#/topic/intro?id=8)
 
+Data
+
+* Positive data: 18.23%
+
 ### Quora Question Pairs
 
 ```sh
@@ -74,6 +90,7 @@ Evaluation: log loss between the predicted values and the ground truth
 
 Data
 
+* Positive data: 36.92%
 * 400K rows in train set and about 2.35M rows in test set
 * 6 columns in train set but only 3 of them are in test set
   * train set
@@ -92,8 +109,8 @@ Data
 
 * Pure Test
 * More evaluation matrics: recall & f1-score
-* Predict mode
-* Transformer
+* Data Generator
+  * generate batch with half positive and negative sample
 
 ## Notes about Virtualenv
 

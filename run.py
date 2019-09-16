@@ -1,6 +1,7 @@
 import argparse
 import os
 import pickle
+import glob
 
 import pandas as pd
 import numpy as np
@@ -19,8 +20,6 @@ from rcnn import EnhancedRCNN, EnhancedRCNN_Transformer
 
 MODEL_PATH = "model"
 EMBEDDING = "word2vec"
-
-PAD_IDX = 0
 
 
 def training_data_loader(mode="word", dataset="Ant"):
@@ -102,13 +101,22 @@ def embedding_loader(X1, X2, embedding_folder=EMBEDDING, mode="word", dataset="A
     return tokenizer, torch.Tensor(embeddings_matrix)
 
 
-def train(args, model, device, optimizer):
+def load_latest_model(args, model_obj):
+    if args.dataset == "Ant":
+        list_of_models = glob.glob(
+            f"{MODEL_PATH}/{args.dataset}_{args.model}_epoch_*_{args.word_segment}.pkl")
+    elif args.dataset == "Quora":
+        list_of_models = glob.glob(
+            f"{MODEL_PATH}/{args.dataset}_{args.model}_epoch_*.pkl")
+    latest_checkpoint = max(list_of_models, key=os.path.getctime)
+    model_obj.load_state_dict(torch.load(latest_checkpoint))
+
+
+def train(args, model, tokenizer, device, optimizer):
     model.train()
 
     X1, X2, Y = training_data_loader(
         mode=args.word_segment, dataset=args.dataset)
-    tokenizer, embeddings_matrix = embedding_loader(
-        X1, X2, mode=args.word_segment, dataset=args.dataset)
 
     stratified_folder = StratifiedKFold(
         n_splits=args.k_fold, random_state=args.seed, shuffle=True)
@@ -189,13 +197,76 @@ def test(args, model, device, test_loader):
         100. * correct / len(test_loader.dataset)))
 
 
+def predict(args, model, tokenizer, device):
+    model.eval()
+
+    # zh_en = input('Chinese or English:')
+    if args.dataset == "Ant":
+        zh_en = 'c'
+    elif args.dataset == "Quora":
+        zh_en = 'e'
+
+    raw_sentence_1 = input('Input test setnetnce 1: ')
+    raw_sentence_2 = input('Input test setnetnce 2: ')
+
+    if zh_en[0].lower() == 'c': # Chinese
+        from preprocess import stopwordslist
+        stopwords = stopwordslist()
+        sentence_1 = []; sentence_2 = []
+        if args.word_segment == "word":
+            import jieba
+            for word in ['花呗','借呗','支付宝','余额宝','饿了么','微粒贷','双十一','小蓝车','拼多多','外卖','美团','账单','到账','能不能','应还','会不会','找不到','另一个','微信','网商贷']:
+                jieba.add_word(word)
+            for word in ["开花", "开了花", "提花", "申花", "天花", "银花", "我花", "借花"]:
+                jieba.del_word(word)
+            
+            for c in jieba.cut(raw_sentence_1):
+                if c not in stopwords and c != ' ':
+                    sentence_1.append(c)
+            for c in jieba.cut(raw_sentence_2):
+                if c not in stopwords and c != ' ':
+                    sentence_2.append(c)
+        elif args.word_segment == "char":
+            for c in raw_sentence_1:
+                if c not in stopwords and c != ' ':
+                    sentence_1.append(c)
+            for c in raw_sentence_2:
+                if c not in stopwords and c != ' ':
+                    sentence_2.append(c)
+    elif zh_en[0].lower() == 'e': # English
+        sentence_1 = raw_sentence_1.split()
+        sentence_2 = raw_sentence_2.split()
+
+    sentence_1 = [sentence_1]
+    sentence_2 = [sentence_2]
+
+    print('Processed sentences:', sentence_1, '\n', sentence_2)
+
+    list_tokenized_1 = tokenizer.texts_to_sequences(sentence_1)
+    list_tokenized_2 = tokenizer.texts_to_sequences(sentence_2)
+    print('Tokenized sentences:', list_tokenized_1, '\n', list_tokenized_2)
+
+    input_1 = keras.preprocessing.sequence.pad_sequences(
+        list_tokenized_1, maxlen=args.max_len)
+    input_2 = keras.preprocessing.sequence.pad_sequences(
+        list_tokenized_2, maxlen=args.max_len)
+    print('Padded sentences:', input_1, '\n', input_2)
+
+    input_tensor_1 = torch.tensor(input_1, dtype=torch.long)
+    input_tensor_2 = torch.tensor(input_2, dtype=torch.long)
+
+    output = model(input_tensor_1.to(device), input_tensor_2.to(device))
+
+    print('Predict similarity:', output)
+
+
 def main():
     # Training settings
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
     parser.add_argument('--dataset', type=str, default='Ant', metavar='D',
                         help='[Ant] Finance or [Quora] Question Pairs (default: Ant)')
     parser.add_argument('--mode', type=str, default='train', metavar='M',
-                        help='train or test or both or predict mode (default: train)')
+                        help='train or test or predict mode (default: train)')
     parser.add_argument('--model', type=str, default='ERCNN', metavar='M',
                         help='ERCNN (default), Transformer')
     parser.add_argument('--word-segment', type=str, default='word', metavar='WS',
@@ -240,7 +311,7 @@ def main():
 
     X1, X2, _ = training_data_loader(
         mode=args.word_segment, dataset=args.dataset)
-    _, embeddings_matrix = embedding_loader(
+    tokenizer, embeddings_matrix = embedding_loader(
         X1, X2, mode=args.word_segment, dataset=args.dataset)
 
     if args.model == "ERCNN":
@@ -251,12 +322,28 @@ def main():
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(
         args.beta1, args.beta2), eps=args.epsilon)
 
-    if args.mode == "train" or args.mode == "both":
-        train(args, model, device, optimizer)
+    if args.mode == "train":
+        train(args, model, tokenizer, device, optimizer)
 
-    if args.mode == "test" or args.mode == "both":
-        pass
-        # test(args, model, device, test_loader)
+    if args.mode == "test":
+        load_latest_model(args, model)
+        X1, X2, Y = training_data_loader(
+            mode=args.word_segment, dataset=args.dataset)
+        list_tokenized_X1 = tokenizer.texts_to_sequences(X1)
+        list_tokenized_X2 = tokenizer.texts_to_sequences(X2)
+        input_X1 = keras.preprocessing.sequence.pad_sequences(
+            list_tokenized_X1, maxlen=args.max_len)
+        input_X2 = keras.preprocessing.sequence.pad_sequences(
+            list_tokenized_X2, maxlen=args.max_len)
+        input_tensor = torch_data.TensorDataset(torch.tensor(input_X1, dtype=torch.long), torch.tensor(
+            input_X2, dtype=torch.long), torch.tensor(Y.values, dtype=torch.float))
+        test_loader = torch_data.DataLoader(
+            input_tensor, batch_size=args.test_batch_size)
+        test(args, model, device, test_loader)
+    
+    if args.mode == "predict":
+        load_latest_model(args, model)
+        predict(args, model, tokenizer, device)
 
 
 if __name__ == "__main__":
