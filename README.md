@@ -8,9 +8,9 @@ python3 preprocess.py [word/char] train
 
 # Training
 ## Ant
-python3 run.py --dataset Ant --mode train --word-segment [word/char]
+python3 run.py --dataset Ant --model [ERCNN/Transformer] --mode train --word-segment [word/char]
 ## Quora
-python3 run.py --dataset Quora --mode train
+python3 run.py --dataset Quora --model [ERCNN/Transformer] --mode train
 ```
 
 ## Data
@@ -93,7 +93,7 @@ Data
 * Pure Test
 * More evaluation matrics: recall & f1-score
 * Predict mode
-* Quora dataset
+* Transformer
 
 ## Notes about Virtualenv
 
