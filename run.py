@@ -101,6 +101,22 @@ def embedding_loader(X1, X2, embedding_folder=EMBEDDING, mode="word", dataset="A
     return tokenizer, torch.Tensor(embeddings_matrix)
 
 
+def tokenize_and_padding(X1, X2, max_len, tokenizer=None, debug=False):
+    list_tokenized_X1 = tokenizer.texts_to_sequences(X1)
+    list_tokenized_X2 = tokenizer.texts_to_sequences(X2)
+    if debug:
+        print('Tokenized sentences:', list_tokenized_X1, '\t', list_tokenized_X2)
+
+    padded_token_X1 = keras.preprocessing.sequence.pad_sequences(
+        list_tokenized_X1, maxlen=max_len)
+    padded_token_X2 = keras.preprocessing.sequence.pad_sequences(
+        list_tokenized_X2, maxlen=max_len)
+    if debug:
+        print('Padded sentences:', padded_token_X1, '\t', padded_token_X2)
+
+    return torch.tensor(padded_token_X1, dtype=torch.long), torch.tensor(padded_token_X2, dtype=torch.long)
+
+
 def load_latest_model(args, model_obj):
     if args.dataset == "Ant":
         list_of_models = glob.glob(
@@ -126,26 +142,17 @@ def train(args, model, tokenizer, device, optimizer):
         X_fold_train2, X_fold_test2 = X2[train_index], X2[test_index]
         Y_fold_train, Y_fold_test = Y[train_index], Y[test_index]
 
-        list_tokenized_train1 = tokenizer.texts_to_sequences(X_fold_train1)
-        list_tokenized_train2 = tokenizer.texts_to_sequences(X_fold_train2)
-        list_tokenized_test1 = tokenizer.texts_to_sequences(X_fold_test1)
-        list_tokenized_test2 = tokenizer.texts_to_sequences(X_fold_test2)
+        X_tensor_train_1, X_tensor_train_2 = tokenize_and_padding(
+            X_fold_train1, X_fold_train2, args.max_len, tokenizer)
+        X_tensor_test_1, X_tensor_test_2 = tokenize_and_padding(
+            X_fold_test1, X_fold_test2, args.max_len, tokenizer)
 
-        input_train1 = keras.preprocessing.sequence.pad_sequences(
-            list_tokenized_train1, maxlen=args.max_len)
-        input_train2 = keras.preprocessing.sequence.pad_sequences(
-            list_tokenized_train2, maxlen=args.max_len)
-        input_test1 = keras.preprocessing.sequence.pad_sequences(
-            list_tokenized_test1, maxlen=args.max_len)
-        input_test2 = keras.preprocessing.sequence.pad_sequences(
-            list_tokenized_test2, maxlen=args.max_len)
-
-        train_tensor = torch_data.TensorDataset(torch.tensor(input_train1, dtype=torch.long), torch.tensor(
-            input_train2, dtype=torch.long), torch.tensor(Y_fold_train.values, dtype=torch.float))
+        train_tensor = torch_data.TensorDataset(X_tensor_train_1, X_tensor_train_2,
+            torch.tensor(Y_fold_train.values, dtype=torch.float))
         train_dataset = torch_data.DataLoader(
             train_tensor, batch_size=args.batch_size)
-        test_tensor = torch_data.TensorDataset(torch.tensor(input_test1, dtype=torch.long), torch.tensor(
-            input_test2, dtype=torch.long), torch.tensor(Y_fold_test.values, dtype=torch.float))
+        test_tensor = torch_data.TensorDataset(X_tensor_test_1, X_tensor_test_2,
+            torch.tensor(Y_fold_test.values, dtype=torch.float))
         test_dataset = torch_data.DataLoader(
             test_tensor, batch_size=args.test_batch_size)
 
@@ -242,18 +249,8 @@ def predict(args, model, tokenizer, device):
 
     print('Processed sentences:', sentence_1, '\n', sentence_2)
 
-    list_tokenized_1 = tokenizer.texts_to_sequences(sentence_1)
-    list_tokenized_2 = tokenizer.texts_to_sequences(sentence_2)
-    print('Tokenized sentences:', list_tokenized_1, '\n', list_tokenized_2)
-
-    input_1 = keras.preprocessing.sequence.pad_sequences(
-        list_tokenized_1, maxlen=args.max_len)
-    input_2 = keras.preprocessing.sequence.pad_sequences(
-        list_tokenized_2, maxlen=args.max_len)
-    print('Padded sentences:', input_1, '\n', input_2)
-
-    input_tensor_1 = torch.tensor(input_1, dtype=torch.long)
-    input_tensor_2 = torch.tensor(input_2, dtype=torch.long)
+    input_tensor_1, input_tensor_2 = tokenize_and_padding(
+        sentence_1, sentence_2, args.max_len, tokenizer, debug=True)
 
     output = model(input_tensor_1.to(device), input_tensor_2.to(device))
 
@@ -329,14 +326,9 @@ def main():
         load_latest_model(args, model)
         X1, X2, Y = training_data_loader(
             mode=args.word_segment, dataset=args.dataset)
-        list_tokenized_X1 = tokenizer.texts_to_sequences(X1)
-        list_tokenized_X2 = tokenizer.texts_to_sequences(X2)
-        input_X1 = keras.preprocessing.sequence.pad_sequences(
-            list_tokenized_X1, maxlen=args.max_len)
-        input_X2 = keras.preprocessing.sequence.pad_sequences(
-            list_tokenized_X2, maxlen=args.max_len)
-        input_tensor = torch_data.TensorDataset(torch.tensor(input_X1, dtype=torch.long), torch.tensor(
-            input_X2, dtype=torch.long), torch.tensor(Y.values, dtype=torch.float))
+        input_X1, input_X2 = tokenize_and_padding(X1, X2, args.max_len, tokenizer)
+        input_tensor = torch_data.TensorDataset(input_X1, input_X2,
+            torch.tensor(Y.values, dtype=torch.float))
         test_loader = torch_data.DataLoader(
             input_tensor, batch_size=args.test_batch_size)
         test(args, model, device, test_loader)
