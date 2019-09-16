@@ -68,6 +68,10 @@ Not Sure
 * [Original competition](https://dc.cloud.alipay.com/index#/topic/intro?id=3)
 * [Long-term competition with same topic](https://dc.cloud.alipay.com/index#/topic/intro?id=8)
 
+Goal: classify whether two question sentences are asking the same thing => predict true or false
+
+Evaluation: **f1-score**
+
 Data
 
 * Positive data: 18.23%
@@ -83,7 +87,7 @@ rm *.zip
 
 Goal: classify whether question pairs are duplicates or not => predict the probability that the questions are duplicates (a number between 0 and 1)
 
-Evaluation: log loss between the predicted values and the ground truth
+Evaluation: **log loss** between the predicted values and the ground truth
 
 * [Kaggle - Quora Question Pairs](https://www.kaggle.com/c/quora-question-pairs)
 * [Quora - First Quora Dataset Release: Question Pairs](https://www.quora.com/q/quoradata/First-Quora-Dataset-Release-Question-Pairs)
@@ -102,6 +106,29 @@ Data
     * test_id
     * question1, question2
 * about 63% non-duplicate questions and 37% duplicate questions in the training data set
+
+## Experiment
+
+### Ant Financial
+
+(during training)
+
+| Model             | Word Segment | Batch Preprocessing | Epoch | Average Loss | Accuracy |
+| ----------------- | ------------ | ------------------- | ----- | ------------ | -------- |
+| Random            | -            | -                   | -     | -            | 82%      |
+| ERCN              | word         | none                | 10    | 0.4611       | 82%      |
+| ERCN              | char         | none                | 10    | 0.4611       | 82%      |
+| ERCNN-Transformer | char         | none                | 10    | 0.4128       | 83%      |
+
+### Quora
+
+(during training)
+
+| Model             | Batch Preprocessing | Epoch | Average Loss | Accuracy |
+| ----------------- | ------------------- | ----- | ------------ | -------- |
+| Random            | -                   | -     | -            | 63%      |
+| ERCNN             | none                | 10    | 0.4094       | 80%      |
+| ERCNN-Transformer | none                | 5     | 10.2011      | 63%      |
 
 ## TODO
 
