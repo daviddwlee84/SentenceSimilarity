@@ -191,9 +191,8 @@ def main():
     if args.sampling == "random":
         from random_train import train, test
     elif args.sampling == "balance":
-        # from balance_train import train, test
-        from balance_train import train
-        from random_train import test # use unbalancd data (raw data) to test
+        from balance_train import train, test
+        # from random_train import test # use unbalancd data (raw data) to test
 
     if args.mode == "train" or args.mode == "both":
         logging.info(f"Training using {args.sampling} sampling mode...")

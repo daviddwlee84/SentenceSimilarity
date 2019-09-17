@@ -129,10 +129,13 @@ def tokenize_and_padding(X1, X2, max_len, tokenizer=None, debug=False):
 
 
 class BalanceDataHelper:
-    def __init__(self, X1, X2, Y, random_seed):
+    def __init__(self, X1, X2, Y, random_seed, generate_mode=True):
         np.random.seed(random_seed)
+        self.generate_mode = generate_mode
         self._seperate_data(X1, X2, Y)
         self.dataset_size = self._positive_count*2
+        logger.info(
+            f"balanced dataset size/original dataset size = {self.dataset_size}/{len(Y)} = {self.dataset_size/len(Y)}")
         self.total_batch = None
 
     def __len__(self):
@@ -143,13 +146,17 @@ class BalanceDataHelper:
         negative_index = np.where(Y == 0)[0]
 
         self._positive_count = len(positive_index)  # half dataset size
-        # self._negative_count = len(negative_index)
+        self._negative_count = len(negative_index)
 
         self.POS_SENTENCE_PAIR = list(
             zip(X1[positive_index], X2[positive_index]))
+        # for generate mode
         self.NEG_SENTENCES = X1[negative_index] + X2[negative_index]
+        # for normal mode
+        self.NEG_SETNECNES_PAIR = list(
+            zip(X1[negative_index], X2[negative_index]))
 
-    def _get_negative_samples(self, positive_samples):
+    def _generate_negative_samples(self, positive_samples):
         """ get the same amount of the positive sample by replacing one of the sentence in positive samples """
         negative_samples = []
         for pos_sent1, pos_sent2 in positive_samples:
@@ -167,6 +174,13 @@ class BalanceDataHelper:
         assert len(positive_samples) == len(negative_samples)
         return negative_samples
 
+    def _get_negative_samples(self, number):
+        negative_indices = np.arange(self._negative_count)
+        negative_samples_indices = np.random.choice(
+            negative_indices, size=number)
+        return [self.NEG_SETNECNES_PAIR[idx]
+                for idx in negative_samples_indices]
+
     def batch_iter(self, batch_size, shuffle=True, neg_label=0.0):
         """ generator of a batch of balance data, neg_label usually be 0 or -1 """
         positive_data_order = list(range(self._positive_count))
@@ -183,12 +197,17 @@ class BalanceDataHelper:
             end_index = batch_step*semi_batch_size + semi_batch_size
             if end_index > self._positive_count:
                 end_index = self._positive_count
-            positive_data_index = positive_data_order[start_index:end_index]
+            positive_data_indices = positive_data_order[start_index:end_index]
 
             positive_sentence_pair = [self.POS_SENTENCE_PAIR[idx]
-                                      for idx in positive_data_index]
-            negative_sentence_pair = self._get_negative_samples(
-                positive_sentence_pair)
+                                      for idx in positive_data_indices]
+
+            if self.generate_mode:
+                negative_sentence_pair = self._generate_negative_samples(
+                    positive_sentence_pair)
+            else:
+                negative_sentence_pair = self._get_negative_samples(
+                    len(positive_data_indices))
 
             x_pair = positive_sentence_pair + negative_sentence_pair
             x1, x2 = zip(*x_pair)  # unzip zipped pair
@@ -196,28 +215,35 @@ class BalanceDataHelper:
             yield x1, x2, y
 
 
+def _debug_data_helper(data_helper):
+    print(data_helper.dataset_size)
+
+    batch_iterator = data_helper.batch_iter(4)
+    print(data_helper.total_batch)
+    print(next(batch_iterator))
+    print(data_helper.total_batch)
+    print(data_helper._batch_step)
+    print(next(batch_iterator))
+    print(data_helper._batch_step)
+
+    batch_iterator = data_helper.batch_iter(2)
+    for i, (x1, x2, y) in enumerate(batch_iterator):
+        print(i, data_helper._batch_step, x1, x2, y)
+        if i > 3:
+            break
+    print(data_helper._batch_step)
+
+    for i, (x1, x2, y) in enumerate(data_helper.batch_iter(8)):
+        print(i, data_helper._batch_step, x1, x2, y)
+        if i > 3:
+            break
+    print(data_helper._batch_step)
+
+
 if __name__ == "__main__":
     X1_train, X2_train, Y_train, _, _, _ = train_test_data_loader(87)
-    trainHelper = BalanceDataHelper(X1_train, X2_train, Y_train, 87)
-    print(trainHelper.dataset_size)
+    data_helper = BalanceDataHelper(X1_train, X2_train, Y_train, 87)
+    _debug_data_helper(data_helper)
 
-    batch_iterator = trainHelper.batch_iter(4)
-    print(trainHelper.total_batch)
-    print(next(batch_iterator))
-    print(trainHelper.total_batch)
-    print(trainHelper._batch_step)
-    print(next(batch_iterator))
-    print(trainHelper._batch_step)
-
-    batch_iterator = trainHelper.batch_iter(2)
-    for i, (x1, x2, y) in enumerate(batch_iterator):
-        print(i, trainHelper._batch_step, x1, x2, y)
-        if i > 3:
-            break
-    print(trainHelper._batch_step)
-
-    for i, (x1, x2, y) in enumerate(trainHelper.batch_iter(8)):
-        print(i, trainHelper._batch_step, x1, x2, y)
-        if i > 3:
-            break
-    print(trainHelper._batch_step)
+    data_helper = BalanceDataHelper(X1_train, X2_train, Y_train, 87, False)
+    _debug_data_helper(data_helper)

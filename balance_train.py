@@ -92,7 +92,8 @@ def _test_on_dataloader(args, model, tokenizer, device, test_data_helper, datase
 def test(args, model, tokenizer, device):
     _, _, _, X1, X2, Y = train_test_data_loader(
         args.seed, mode=args.word_segment, dataset=args.dataset, test_split=args.test_split)
-    test_data_helper = BalanceDataHelper(X1, X2, Y, args.seed)
+    test_data_helper = BalanceDataHelper(
+        X1, X2, Y, args.seed, generate_mode=False)
     logger.info(f'Test on {test_data_helper.dataset_size} amount of data')
     _test_on_dataloader(args, model, tokenizer, device,
                         test_data_helper, dataset="Test")
