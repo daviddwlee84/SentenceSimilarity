@@ -7,6 +7,10 @@ from sklearn.model_selection import StratifiedKFold
 
 from data_prepare import training_data_loader, tokenize_and_padding
 
+import logging
+
+logger = logging.getLogger('random_train')
+
 
 def train(args, model, tokenizer, device, optimizer):
     model.train()
@@ -45,7 +49,7 @@ def train(args, model, tokenizer, device, optimizer):
             loss.backward()
             optimizer.step()
             if batch_idx % args.log_interval == 0:
-                print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\t'.format(
+                logger.info('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\t'.format(
                     epoch + 1, batch_idx *
                     len(input_1), len(train_dataset.dataset),
                     100. * batch_idx / len(train_dataset), loss.item()))
@@ -54,6 +58,7 @@ def train(args, model, tokenizer, device, optimizer):
                 model.train()  # switch the model mode back to train
 
         if not args.not_save_model:
+            logger.info(f'Saving model on epoch {epoch + 1}')
             if args.dataset == "Ant":
                 torch.save(model.state_dict(),
                            f"{args.model_path}/{args.dataset}_{args.model}_epoch_{epoch + 1}_{args.word_segment}.pkl")
@@ -79,7 +84,7 @@ def _test_on_dataloader(args, model, device, test_loader):
 
     test_loss /= len(test_loader.dataset)
 
-    print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+    logger.info('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)\n'.format(
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
 

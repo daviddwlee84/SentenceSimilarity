@@ -1,6 +1,8 @@
 import argparse
 import os
 import glob
+import logging
+import time
 
 # from sklearn.metrics import f1_score, recall_score, precision_score  # TODO
 
@@ -11,6 +13,7 @@ from rcnn import EnhancedRCNN, EnhancedRCNN_Transformer
 from data_prepare import embedding_loader, tokenize_and_padding
 
 MODEL_PATH = "model"
+LOG_PATH = "log"
 
 def load_latest_model(args, model_obj):
     if args.dataset == "Ant":
@@ -20,6 +23,7 @@ def load_latest_model(args, model_obj):
         list_of_models = glob.glob(
             f"{args.model_path}/{args.dataset}_{args.model}_epoch_*.pkl")
     latest_checkpoint = max(list_of_models, key=os.path.getctime)
+    logging.info(f"Loading the latest model: {latest_checkpoint}")
     model_obj.load_state_dict(torch.load(latest_checkpoint))
 
 
@@ -76,8 +80,17 @@ def predict(args, model, tokenizer, device):
     print('Predict similarity:', output)
 
 
+def print_settings(args):
+    logging.info('Configurations:')
+    logging.info(f'\tDataset\t\t: {args.dataset}')
+    logging.info(f'\tMode\t\t: {args.mode}')
+    logging.info(f'\tSampling Mode\t: {args.sampling}')
+    logging.info(f'\tUsing Model\t: {args.model}')
+    if args.dataset == "Ant":
+        logging.info(f'\tWord Segment\t: {args.word_segment}')
+
 def main():
-    # Training settings
+    # Arguments
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
     parser.add_argument('--dataset', type=str, default='Ant', metavar='dataset',
                         choices=['Ant', 'Quora'],
@@ -121,9 +134,30 @@ def main():
 
     args = parser.parse_args()
 
+
+    # Logging
+    ctime = time.localtime()
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                        datefmt='%m-%d %H:%M',
+                        filename='{}/{}_{}_{}-{}-{}:{}.log'.format(
+                            LOG_PATH,
+                            args.dataset, args.model,
+                            ctime.tm_mon, ctime.tm_mday, ctime.tm_hour, ctime.tm_min
+                        ),
+                        filemode='w')
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+    console.setFormatter(formatter)
+    # add the handler to the root logger
+    logging.getLogger('').addHandler(console)
+
+
+    # PyTorch device configure (cuda/GPU or CPU)
     use_cuda = not args.no_cuda and torch.cuda.is_available()
     device = torch.device("cuda" if use_cuda else "cpu")
-    print("Use device:", device)
+    logging.info(f"Use device: {device}")
 
     torch.manual_seed(args.seed)
 
@@ -133,10 +167,13 @@ def main():
     args.max_feature = 20000
     args.model_path = MODEL_PATH
 
+    print_settings(args)
+
     tokenizer, embeddings_matrix = embedding_loader(
         mode=args.word_segment, dataset=args.dataset)
 
     # model and optimizer
+    logging.info("Building model...")
     if args.model == "ERCNN":
         model = EnhancedRCNN(embeddings_matrix, args.max_len).to(device)
     elif args.model == "Transformer":
@@ -150,15 +187,19 @@ def main():
         from random_train import train, test
 
     if args.mode == "train":
+        logging.info(f"Training using {args.sampling} sampling mode...")
         train(args, model, tokenizer, device, optimizer)
     elif args.mode == "test":
+        logging.info("Testing the entire training set...")
         load_latest_model(args, model)
         test(args, model, device)
     elif args.mode == "predict":
+        logging.info("Predicting manually...")
         load_latest_model(args, model)
         predict(args, model, tokenizer, device)
 
 
 if __name__ == "__main__":
     os.makedirs(MODEL_PATH, exist_ok=True)
+    os.makedirs(LOG_PATH, exist_ok=True)
     main()

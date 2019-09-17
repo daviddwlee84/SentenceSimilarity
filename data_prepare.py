@@ -5,9 +5,13 @@ import keras
 import pickle
 import os
 from gensim.models.keyedvectors import KeyedVectors
+import logging
+
+logger = logging.getLogger('data_prepare')
 
 
 def training_data_loader(mode="word", dataset="Ant"):
+    logger.info(f'Loading training data of {dataset} dataset...')
     if dataset == "Ant":
         data = pd.read_csv(f"data/sentence_{mode}_train.csv",
                            header=None, names=["doc1", "doc2", "label"])
@@ -44,6 +48,7 @@ def embedding_loader(embedding_folder="word2vec", mode="word", dataset="Ant"):
         embed_pickle_file = f'{embedding_folder}/{dataset}_embed_matrix.pickle'
 
     # Load tokenizer
+    logger.info('Loading tokenizer...')
     if os.path.isfile(tokenizer_pickle_file):
         with open(tokenizer_pickle_file, 'rb') as handle:
             tokenizer = pickle.load(handle)
@@ -55,6 +60,7 @@ def embedding_loader(embedding_folder="word2vec", mode="word", dataset="Ant"):
             pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     # Load embedding matrix
+    logger.info('Loading embedding matrix...')
     if os.path.isfile(embed_pickle_file):
         with open(embed_pickle_file, 'rb') as handle:
             embeddings_matrix = pickle.load(handle)

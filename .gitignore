@@ -4,6 +4,7 @@ model/
 quora_question_pairs_data/
 word2vec/
 output/
+log/
 
 # virtualenv on PKU server
 venv-py36/
