@@ -18,10 +18,10 @@ LOG_PATH = "log"
 def load_latest_model(args, model_obj):
     if args.dataset == "Ant":
         list_of_models = glob.glob(
-            f"{args.model_path}/{args.dataset}_{args.model}_epoch_*_{args.word_segment}.pkl")
+            f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_*_{args.word_segment}.pkl")
     elif args.dataset == "Quora":
         list_of_models = glob.glob(
-            f"{args.model_path}/{args.dataset}_{args.model}_epoch_*.pkl")
+            f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_*.pkl")
     latest_checkpoint = max(list_of_models, key=os.path.getctime)
     logging.info(f"Loading the latest model: {latest_checkpoint}")
     model_obj.load_state_dict(torch.load(latest_checkpoint))
@@ -111,8 +111,8 @@ def main():
                         help='input batch size for training (default: 256)')
     parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                         help='input batch size for testing (default: 1000)')
-    parser.add_argument('--epochs', type=int, default=15, metavar='N',
-                        help='number of epochs to train (default: 15)')
+    parser.add_argument('--k-fold', type=int, default=10, metavar='N',
+                        help='k-fold cross validation i.e. number of epochs to train (default: 10)')
     parser.add_argument('--lr', type=float, default=0.001, metavar='N',
                         help='learning rate (default: 0.001)')
     parser.add_argument('--beta1', type=float, default=0.9, metavar='N',
@@ -142,9 +142,9 @@ def main():
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                         datefmt='%m-%d %H:%M',
-                        filename='{}/{}_{}_{}-{}-{}:{}.log'.format(
+                        filename='{}/{}_{}_{}_{}-{}-{}:{}.log'.format(
                             LOG_PATH,
-                            args.dataset, args.model,
+                            args.dataset, args.sampling, args.model,
                             ctime.tm_mon, ctime.tm_mday, ctime.tm_hour, ctime.tm_min
                         ),
                         filemode='w')
@@ -164,7 +164,6 @@ def main():
     torch.manual_seed(args.seed)
 
     # additional custom parameter
-    args.k_fold = 10
     args.max_len = 48
     args.max_feature = 20000
     args.model_path = MODEL_PATH

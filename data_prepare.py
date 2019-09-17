@@ -126,16 +126,6 @@ def tokenize_and_padding(X1, X2, max_len, tokenizer=None, debug=False):
 # For balance train
 
 
-def balance_data_loader(random_seed, mode="word", dataset="Ant", test_split=0.3):
-    X1_train, X2_train, Y_train, X1_test, X2_test, Y_test = train_test_data_loader(
-        random_seed, mode, dataset, test_split)
-
-    trainHelper = BalanceDataHelper(X1_train, X2_train, Y_train, random_seed)
-    testHelper = BalanceDataHelper(X1_test, X2_test, Y_test, random_seed)
-
-    return trainHelper, testHelper
-
-
 class BalanceDataHelper:
     def __init__(self, X1, X2, Y, random_seed):
         np.random.seed(random_seed)
@@ -198,8 +188,9 @@ class BalanceDataHelper:
 
 
 if __name__ == "__main__":
+    X1_train, X2_train, Y_train, _, _, _ = train_test_data_loader(87)
+    trainHelper = BalanceDataHelper(X1_train, X2_train, Y_train, 87)
     # test
-    trainHelper, _ = balance_data_loader(87)
     batch_iterator = trainHelper.batch_iter(4)
     print(next(batch_iterator))
     print(next(batch_iterator))

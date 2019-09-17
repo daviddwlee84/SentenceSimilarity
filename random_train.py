@@ -61,10 +61,10 @@ def train(args, model, tokenizer, device, optimizer):
             logger.info(f'Saving model on epoch {epoch + 1}')
             if args.dataset == "Ant":
                 torch.save(model.state_dict(),
-                           f"{args.model_path}/{args.dataset}_{args.model}_epoch_{epoch + 1}_{args.word_segment}.pkl")
+                           f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_{epoch + 1}_{args.word_segment}.pkl")
             elif args.dataset == "Quora":
                 torch.save(model.state_dict(),
-                           f"{args.model_path}/{args.dataset}_{args.model}_epoch_{epoch + 1}.pkl")
+                           f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_{epoch + 1}.pkl")
 
 
 def _test_on_dataloader(args, model, device, test_loader):
