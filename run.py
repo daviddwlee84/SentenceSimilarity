@@ -17,11 +17,15 @@ LOG_PATH = "log"
 
 def load_latest_model(args, model_obj):
     if args.dataset == "Ant":
-        list_of_models = glob.glob(
-            f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_*_{args.word_segment}.pkl")
+        possible_model_name = f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_*_{args.word_segment}.pkl"
     elif args.dataset == "Quora":
-        list_of_models = glob.glob(
-            f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_*.pkl")
+        possible_model_name = f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_*.pkl"
+            
+    list_of_models = glob.glob(possible_model_name)
+    if len(list_of_models) == 0:
+        logging.warning(f'No candidate model name "{possible_model_name}" found')
+        exit(1)
+        
     latest_checkpoint = max(list_of_models, key=os.path.getctime)
     logging.info(f"Loading the latest model: {latest_checkpoint}")
     model_obj.load_state_dict(torch.load(latest_checkpoint))
@@ -140,17 +144,17 @@ def main():
     # Logging
     ctime = time.localtime()
     logging.basicConfig(level=logging.DEBUG,
-                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                        format='%(asctime)s %(name)-13s %(levelname)-8s %(message)s',
                         datefmt='%m-%d %H:%M',
-                        filename='{}/{}_{}_{}_{}-{}-{}:{}.log'.format(
+                        filename='{}/{}_{}_{}_{}_{}-{}-{}:{}.log'.format(
                             LOG_PATH,
-                            args.dataset, args.sampling, args.model,
+                            args.mode, args.dataset, args.sampling, args.model,
                             ctime.tm_mon, ctime.tm_mday, ctime.tm_hour, ctime.tm_min
                         ),
                         filemode='w')
     console = logging.StreamHandler()
     console.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+    formatter = logging.Formatter('%(name)-13s: %(levelname)-8s %(message)s')
     console.setFormatter(formatter)
     # add the handler to the root logger
     logging.getLogger('').addHandler(console)
@@ -186,6 +190,8 @@ def main():
     # sampling mode
     if args.sampling == "random":
         from random_train import train, test
+    elif args.sampling == "balance":
+        from balance_train import train, test
 
     if args.mode == "train":
         logging.info(f"Training using {args.sampling} sampling mode...")

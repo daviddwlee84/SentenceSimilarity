@@ -47,6 +47,8 @@ def train_test_data_loader(random_seed, mode="word", dataset="Ant", test_split=0
     X1, X2, Y = data_loader(mode, dataset)
     X1_train, X1_test, X2_train, X2_test, Y_train, Y_test = train_test_split(
         X1, X2, Y, test_size=test_split, random_state=random_seed)
+    logger.info(f"Training data size: {len(Y_train)}")
+    logger.info(f"Test data size: {len(Y_test)}")
     return X1_train, X2_train, Y_train, X1_test, X2_test, Y_test
 
 
@@ -130,13 +132,18 @@ class BalanceDataHelper:
     def __init__(self, X1, X2, Y, random_seed):
         np.random.seed(random_seed)
         self._seperate_data(X1, X2, Y)
+        self.dataset_size = self._positive_count
+        self.total_batch = None
+
+    def __len__(self):
+        return self.total_batch
 
     def _seperate_data(self, X1, X2, Y):
         positive_index = Y[Y == 1]
         negative_index = Y[Y == 0]
 
-        self.positive_count = len(positive_index)
-        self.negative_count = len(negative_index)
+        self._positive_count = len(positive_index)
+        # self._negative_count = len(negative_index)
 
         self.POS_SENTENCE_PAIR = list(
             zip(X1[positive_index], X2[positive_index]))
@@ -162,18 +169,19 @@ class BalanceDataHelper:
 
     def batch_iter(self, batch_size, shuffle=True, neg_label=0.0):
         """ generator of a batch of balance data, neg_label usually be 0 or -1 """
-        positive_data_order = list(range(self.positive_count))
+        positive_data_order = list(range(self.dataset_size))
         if shuffle:
             np.random.shuffle(positive_data_order)
 
         assert batch_size % 2 == 0
         semi_batch_size = batch_size // 2
+        self.total_batch = self.dataset_size // semi_batch_size
 
-        for batch_step in range(self.positive_count // semi_batch_size):
+        for batch_step in range(self.total_batch):
             start_index = batch_step*semi_batch_size
             end_index = batch_step*semi_batch_size + semi_batch_size
-            if end_index > self.positive_count:
-                end_index = self.positive_count
+            if end_index > self.dataset_size:
+                end_index = self.dataset_size
             positive_data_index = positive_data_order[start_index:end_index]
 
             positive_sentence_pair = [self.POS_SENTENCE_PAIR[idx]
