@@ -49,11 +49,9 @@ def train(args, model, tokenizer, device, optimizer):
                     epoch + 1, batch_idx *
                     len(input_1), train_data_helper.dataset_size,
                     100. * batch_idx / len(train_data_helper), loss.item()))
-            if batch_idx % args.test_interval == 0:
-                _test_on_dataloader(args, model, tokenizer,
-                                    device, test_data_helper)
-                model.train()  # switch the model mode back to train
 
+        _test_on_dataloader(args, model, tokenizer, device, test_data_helper)
+        model.train()  # switch the model mode back to train
         if not args.not_save_model:
             logger.info(f'Saving model on epoch {epoch + 1}')
             if args.dataset == "Ant":
@@ -64,7 +62,7 @@ def train(args, model, tokenizer, device, optimizer):
                            f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_{epoch + 1}.pkl")
 
 
-def _test_on_dataloader(args, model, tokenizer, device, test_data_helper):
+def _test_on_dataloader(args, model, tokenizer, device, test_data_helper, dataset="Valid"):
     model.eval()  # Turn on evaluation mode which disables dropout
     test_loss = 0
     correct = 0
@@ -86,8 +84,8 @@ def _test_on_dataloader(args, model, tokenizer, device, test_data_helper):
 
     test_loss /= test_data_helper.dataset_size
 
-    logger.info('Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
-        test_loss, correct, test_data_helper.dataset_size,
+    logger.info('{} set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
+        dataset, test_loss, correct, test_data_helper.dataset_size,
         100. * correct / test_data_helper.dataset_size))
 
 
@@ -96,4 +94,5 @@ def test(args, model, tokenizer, device):
     _, _, _, X1, X2, Y = train_test_data_loader(
         args.seed, mode=args.word_segment, dataset=args.dataset, test_split=args.test_split)
     test_data_helper = BalanceDataHelper(X1, X2, Y, args.seed)
-    _test_on_dataloader(args, model, tokenizer, device, test_data_helper)
+    _test_on_dataloader(args, model, tokenizer, device,
+                        test_data_helper, dataset="Test")

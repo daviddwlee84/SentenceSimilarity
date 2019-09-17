@@ -132,17 +132,17 @@ class BalanceDataHelper:
     def __init__(self, X1, X2, Y, random_seed):
         np.random.seed(random_seed)
         self._seperate_data(X1, X2, Y)
-        self.dataset_size = self._positive_count
+        self.dataset_size = self._positive_count*2
         self.total_batch = None
 
     def __len__(self):
         return self.total_batch
 
     def _seperate_data(self, X1, X2, Y):
-        positive_index = Y[Y == 1]
-        negative_index = Y[Y == 0]
+        positive_index = np.where(Y == 1)[0]
+        negative_index = np.where(Y == 0)[0]
 
-        self._positive_count = len(positive_index)
+        self._positive_count = len(positive_index)  # half dataset size
         # self._negative_count = len(negative_index)
 
         self.POS_SENTENCE_PAIR = list(
@@ -169,19 +169,20 @@ class BalanceDataHelper:
 
     def batch_iter(self, batch_size, shuffle=True, neg_label=0.0):
         """ generator of a batch of balance data, neg_label usually be 0 or -1 """
-        positive_data_order = list(range(self.dataset_size))
+        positive_data_order = list(range(self._positive_count))
         if shuffle:
             np.random.shuffle(positive_data_order)
 
         assert batch_size % 2 == 0
         semi_batch_size = batch_size // 2
-        self.total_batch = self.dataset_size // semi_batch_size
+        self.total_batch = self._positive_count // semi_batch_size
 
         for batch_step in range(self.total_batch):
+            self._batch_step = batch_step  # debug usage
             start_index = batch_step*semi_batch_size
             end_index = batch_step*semi_batch_size + semi_batch_size
-            if end_index > self.dataset_size:
-                end_index = self.dataset_size
+            if end_index > self._positive_count:
+                end_index = self._positive_count
             positive_data_index = positive_data_order[start_index:end_index]
 
             positive_sentence_pair = [self.POS_SENTENCE_PAIR[idx]
@@ -198,7 +199,25 @@ class BalanceDataHelper:
 if __name__ == "__main__":
     X1_train, X2_train, Y_train, _, _, _ = train_test_data_loader(87)
     trainHelper = BalanceDataHelper(X1_train, X2_train, Y_train, 87)
-    # test
+    print(trainHelper.dataset_size)
+
     batch_iterator = trainHelper.batch_iter(4)
+    print(trainHelper.total_batch)
     print(next(batch_iterator))
+    print(trainHelper.total_batch)
+    print(trainHelper._batch_step)
     print(next(batch_iterator))
+    print(trainHelper._batch_step)
+
+    batch_iterator = trainHelper.batch_iter(2)
+    for i, (x1, x2, y) in enumerate(batch_iterator):
+        print(i, trainHelper._batch_step, x1, x2, y)
+        if i > 3:
+            break
+    print(trainHelper._batch_step)
+
+    for i, (x1, x2, y) in enumerate(trainHelper.batch_iter(8)):
+        print(i, trainHelper._batch_step, x1, x2, y)
+        if i > 3:
+            break
+    print(trainHelper._batch_step)

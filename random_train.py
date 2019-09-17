@@ -53,10 +53,9 @@ def train(args, model, tokenizer, device, optimizer):
                     epoch + 1, batch_idx *
                     len(input_1), len(train_dataset.dataset),
                     100. * batch_idx / len(train_dataset), loss.item()))
-            if batch_idx % args.test_interval == 0:
-                _test_on_dataloader(args, model, device, test_dataset)
-                model.train()  # switch the model mode back to train
 
+        _test_on_dataloader(args, model, device, test_dataset)
+        model.train()  # switch the model mode back to train
         if not args.not_save_model:
             logger.info(f'Saving model on epoch {epoch + 1}')
             if args.dataset == "Ant":
@@ -67,7 +66,7 @@ def train(args, model, tokenizer, device, optimizer):
                            f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_{epoch + 1}.pkl")
 
 
-def _test_on_dataloader(args, model, device, test_loader):
+def _test_on_dataloader(args, model, device, test_loader, dataset="Valid"):
     model.eval()  # Turn on evaluation mode which disables dropout
     test_loss = 0
     correct = 0
@@ -84,8 +83,8 @@ def _test_on_dataloader(args, model, device, test_loader):
 
     test_loss /= len(test_loader.dataset)
 
-    logger.info('Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
-        test_loss, correct, len(test_loader.dataset),
+    logger.info('{} set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
+        dataset, test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
 
 
@@ -98,4 +97,4 @@ def test(args, model, tokenizer, device):
                                             torch.tensor(Y, dtype=torch.float))
     test_loader = torch_data.DataLoader(
         input_tensor, batch_size=args.test_batch_size)
-    _test_on_dataloader(args, model, device, test_loader)
+    _test_on_dataloader(args, model, device, test_loader, dataset="Test")
