@@ -100,17 +100,17 @@ def main():
                         choices=['Ant', 'Quora'],
                         help='[Ant] Finance or [Quora] Question Pairs (default: Ant)')
     parser.add_argument('--mode', type=str, default='train', metavar='mode',
-                        choices=['train', 'test', 'predict'],
-                        help='script mode [train/test/predict] (default: train)')
-    parser.add_argument('--sampling', type=str, default='random', metavar='mode',
+                        choices=['train', 'test', 'both', 'predict'],
+                        help='script mode [train/test/both/predict] (default: both)')
+    parser.add_argument('--sampling', type=str, default='balance', metavar='mode',
                         choices=['random', 'balance'],
-                        help='sampling mode during training (default: random)')
+                        help='sampling mode during training (default: balance)')
     parser.add_argument('--model', type=str, default='ERCNN', metavar='model',
                         choices=['ERCNN', 'Transformer'],
                         help='model to use [ERCNN/Transformer] (default: ERCNN)')
-    parser.add_argument('--word-segment', type=str, default='word', metavar='WS',
+    parser.add_argument('--word-segment', type=str, default='char', metavar='WS',
                         choices=['word', 'char'],
-                        help='chinese word split mode [word/char] (default: word)')
+                        help='chinese word split mode [word/char] (default: char)')
     parser.add_argument('--batch-size', type=int, default=256, metavar='N',
                         help='input batch size for training (default: 256)')
     parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
@@ -191,14 +191,17 @@ def main():
     if args.sampling == "random":
         from random_train import train, test
     elif args.sampling == "balance":
-        from balance_train import train, test
+        # from balance_train import train, test
+        from balance_train import train
+        from random_train import test # use unbalancd data (raw data) to test
 
-    if args.mode == "train":
+    if args.mode == "train" or args.mode == "both":
         logging.info(f"Training using {args.sampling} sampling mode...")
         train(args, model, tokenizer, device, optimizer)
-    elif args.mode == "test":
-        logging.info("Testing the entire training set...")
-        load_latest_model(args, model)
+    elif args.mode == "test" or args.mode == "both":
+        logging.info(f"Testing on {args.test_split*10}% data...")
+        if args.mode != "both":
+            load_latest_model(args, model)
         test(args, model, tokenizer, device)
     elif args.mode == "predict":
         logging.info("Predicting manually...")

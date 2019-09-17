@@ -89,7 +89,6 @@ def _test_on_dataloader(args, model, device, test_loader, dataset="Valid"):
 
 
 def test(args, model, tokenizer, device):
-    """ test using entire training data """
     _, _, _, X1, X2, Y = train_test_data_loader(
         args.seed, mode=args.word_segment, dataset=args.dataset, test_split=args.test_split)
     input_X1, input_X2 = tokenize_and_padding(X1, X2, args.max_len, tokenizer)
@@ -97,4 +96,5 @@ def test(args, model, tokenizer, device):
                                             torch.tensor(Y, dtype=torch.float))
     test_loader = torch_data.DataLoader(
         input_tensor, batch_size=args.test_batch_size)
+    logger.info(f'Test on {len(test_loader.dataset)} amount of data')
     _test_on_dataloader(args, model, device, test_loader, dataset="Test")
