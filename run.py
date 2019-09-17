@@ -125,6 +125,8 @@ def main():
                         help='disables CUDA training')
     parser.add_argument('--seed', type=int, default=16, metavar='N',
                         help='random seed (default: 16)')
+    parser.add_argument('--test-split', type=float, default=0.3, metavar='N',
+                        help='test data split (default: 0.3)')
     parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                         help='how many batches to wait before logging training status')
     parser.add_argument('--test-interval', type=int, default=100, metavar='N',
@@ -192,7 +194,7 @@ def main():
     elif args.mode == "test":
         logging.info("Testing the entire training set...")
         load_latest_model(args, model)
-        test(args, model, device)
+        test(args, model, tokenizer, device)
     elif args.mode == "predict":
         logging.info("Predicting manually...")
         load_latest_model(args, model)

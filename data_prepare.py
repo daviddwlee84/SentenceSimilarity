@@ -4,14 +4,16 @@ import torch
 import keras
 import pickle
 import os
+from sklearn.model_selection import train_test_split
 from gensim.models.keyedvectors import KeyedVectors
 import logging
 
 logger = logging.getLogger('data_prepare')
 
 
-def training_data_loader(mode="word", dataset="Ant"):
-    logger.info(f'Loading training data of {dataset} dataset...')
+def data_loader(mode="word", dataset="Ant"):
+    """ load entire training (labeled) data """
+    logger.info(f'Loading data of {dataset} dataset...')
     if dataset == "Ant":
         data = pd.read_csv(f"data/sentence_{mode}_train.csv",
                            header=None, names=["doc1", "doc2", "label"])
@@ -34,11 +36,22 @@ def training_data_loader(mode="word", dataset="Ant"):
         X2 = data['question2']
         Y = data['is_duplicate']
 
-    return X1, X2, Y
+    logger.info(f'Data amount: {len(Y)}')
+    logger.info(f"Percentage of positive sample: {sum(Y)/len(Y)}")
+
+    return X1.values, X2.values, Y.values
+
+
+def train_test_data_loader(random_seed, mode="word", dataset="Ant", test_split=0.3):
+    logger.info(f"Percentage of test data split: {test_split}")
+    X1, X2, Y = data_loader(mode, dataset)
+    X1_train, X1_test, X2_train, X2_test, Y_train, Y_test = train_test_split(
+        X1, X2, Y, test_size=test_split, random_state=random_seed)
+    return X1_train, X2_train, Y_train, X1_test, X2_test, Y_test
 
 
 def embedding_loader(embedding_folder="word2vec", mode="word", dataset="Ant"):
-    X1, X2, _ = training_data_loader(mode, dataset)
+    X1, X2, _ = data_loader(mode, dataset)
 
     if dataset == "Ant":
         tokenizer_pickle_file = f'{embedding_folder}/{dataset}_{mode}_tokenizer.pickle'
@@ -54,8 +67,8 @@ def embedding_loader(embedding_folder="word2vec", mode="word", dataset="Ant"):
             tokenizer = pickle.load(handle)
     else:
         tokenizer = keras.preprocessing.text.Tokenizer()
-        tokenizer.fit_on_texts(list(X1.values))
-        tokenizer.fit_on_texts(list(X2.values))
+        tokenizer.fit_on_texts(list(X1))
+        tokenizer.fit_on_texts(list(X2))
         with open(tokenizer_pickle_file, 'wb') as handle:
             pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
 

@@ -5,7 +5,7 @@ import torch.nn.functional as F
 import torch.utils.data as torch_data
 from sklearn.model_selection import StratifiedKFold
 
-from data_prepare import training_data_loader, tokenize_and_padding
+from data_prepare import train_test_data_loader, tokenize_and_padding
 
 import logging
 
@@ -15,8 +15,8 @@ logger = logging.getLogger('random_train')
 def train(args, model, tokenizer, device, optimizer):
     model.train()
 
-    X1, X2, Y = training_data_loader(
-        mode=args.word_segment, dataset=args.dataset)
+    X1, X2, Y, _, _, _ = train_test_data_loader(
+        args.seed, mode=args.word_segment, dataset=args.dataset, test_split=args.test_split)
 
     stratified_folder = StratifiedKFold(
         n_splits=args.k_fold, random_state=args.seed, shuffle=True)
@@ -32,11 +32,11 @@ def train(args, model, tokenizer, device, optimizer):
             X_fold_test1, X_fold_test2, args.max_len, tokenizer)
 
         train_tensor = torch_data.TensorDataset(X_tensor_train_1, X_tensor_train_2,
-                                                torch.tensor(Y_fold_train.values, dtype=torch.float))
+                                                torch.tensor(Y_fold_train, dtype=torch.float))
         train_dataset = torch_data.DataLoader(
             train_tensor, batch_size=args.batch_size)
         test_tensor = torch_data.TensorDataset(X_tensor_test_1, X_tensor_test_2,
-                                               torch.tensor(Y_fold_test.values, dtype=torch.float))
+                                               torch.tensor(Y_fold_test, dtype=torch.float))
         test_dataset = torch_data.DataLoader(
             test_tensor, batch_size=args.test_batch_size)
 
@@ -84,19 +84,18 @@ def _test_on_dataloader(args, model, device, test_loader):
 
     test_loss /= len(test_loader.dataset)
 
-    logger.info('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)\n'.format(
+    logger.info('Test set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
 
 
-def test(args, model, device):
+def test(args, model, tokenizer, device):
     """ test using entire training data """
-    load_latest_model(args, model)
-    X1, X2, Y = training_data_loader(
-        mode=args.word_segment, dataset=args.dataset)
+    _, _, _, X1, X2, Y = train_test_data_loader(
+        args.seed, mode=args.word_segment, dataset=args.dataset, test_split=args.test_split)
     input_X1, input_X2 = tokenize_and_padding(X1, X2, args.max_len, tokenizer)
     input_tensor = torch_data.TensorDataset(input_X1, input_X2,
-                                            torch.tensor(Y.values, dtype=torch.float))
+                                            torch.tensor(Y, dtype=torch.float))
     test_loader = torch_data.DataLoader(
         input_tensor, batch_size=args.test_batch_size)
     _test_on_dataloader(args, model, device, test_loader)
