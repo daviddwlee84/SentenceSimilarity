@@ -1,207 +1,26 @@
 import argparse
 import os
-import pickle
 import glob
 
-import pandas as pd
-import numpy as np
-import keras
-from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import f1_score, recall_score, precision_score  # TODO
-from gensim.models.keyedvectors import KeyedVectors
+# from sklearn.metrics import f1_score, recall_score, precision_score  # TODO
 
 import torch
-import torch.nn.functional as F
 import torch.optim as optim
-import torch.utils.data as torch_data
-from torchvision import transforms
 
 from rcnn import EnhancedRCNN, EnhancedRCNN_Transformer
+from data_prepare import embedding_loader, tokenize_and_padding
 
 MODEL_PATH = "model"
-EMBEDDING = "word2vec"
-
-
-def training_data_loader(mode="word", dataset="Ant"):
-    if dataset == "Ant":
-        data = pd.read_csv(f"data/sentence_{mode}_train.csv",
-                           header=None, names=["doc1", "doc2", "label"])
-
-        data["doc1"] = data.apply(lambda x: str(x[0]), axis=1)
-        data["doc2"] = data.apply(lambda x: str(x[1]), axis=1)
-        X1 = data["doc1"]
-        X2 = data["doc2"]
-        Y = data["label"]
-
-    elif dataset == "Quora":
-        data = pd.read_csv(f"raw_data/train.csv", encoding="utf-8")
-        data['id'] = data['id'].apply(str)
-
-        data['question1'].fillna('', inplace=True)
-        data['question2'].fillna('', inplace=True)
-
-        X1 = data['question1']
-        X2 = data['question2']
-
-        Y = data['is_duplicate']
-
-    return X1, X2, Y
-
-
-def embedding_loader(X1, X2, embedding_folder=EMBEDDING, mode="word", dataset="Ant"):
-    if dataset == "Ant":
-        tokenizer_pickle_file = f'{embedding_folder}/{dataset}_{mode}_tokenizer.pickle'
-        embed_pickle_file = f'{embedding_folder}/{dataset}_{mode}_embed_matrix.pickle'
-    elif dataset == "Quora":
-        tokenizer_pickle_file = f'{embedding_folder}/{dataset}_tokenizer.pickle'
-        embed_pickle_file = f'{embedding_folder}/{dataset}_embed_matrix.pickle'
-
-    # Load tokenizer
-    if os.path.isfile(tokenizer_pickle_file):
-        with open(tokenizer_pickle_file, 'rb') as handle:
-            tokenizer = pickle.load(handle)
-    else:
-        tokenizer = keras.preprocessing.text.Tokenizer()
-        tokenizer.fit_on_texts(list(X1.values))
-        tokenizer.fit_on_texts(list(X2.values))
-        with open(tokenizer_pickle_file, 'wb') as handle:
-            pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-    # Load embedding matrix
-    if os.path.isfile(embed_pickle_file):
-        with open(embed_pickle_file, 'rb') as handle:
-            embeddings_matrix = pickle.load(handle)
-    else:
-        word_index = tokenizer.word_index
-
-        if dataset == "Ant":
-            embed_model = KeyedVectors.load_word2vec_format(
-                f"{embedding_folder}/substoke_{mode}.vec.avg", binary=False, encoding='utf8')
-        elif dataset == "Quora":
-            embed_model = KeyedVectors.load_word2vec_format(
-                f"{embedding_folder}/glove.word2vec.txt", binary=False, encoding='utf8')
-
-        embeddings_matrix = np.zeros(
-            (len(word_index) + 1, embed_model.vector_size))
-        vocab_list = [(k, embed_model.wv[k])
-                      for k, v in embed_model.wv.vocab.items()]
-
-        for word, i in word_index.items():
-            if word in embed_model:
-                embedding_vector = embed_model[word]
-            else:
-                embedding_vector = None
-            if embedding_vector is not None:
-                embeddings_matrix[i] = embedding_vector
-
-        with open(embed_pickle_file, 'wb') as handle:
-            pickle.dump(embeddings_matrix, handle,
-                        protocol=pickle.HIGHEST_PROTOCOL)
-
-    return tokenizer, torch.Tensor(embeddings_matrix)
-
-
-def tokenize_and_padding(X1, X2, max_len, tokenizer=None, debug=False):
-    list_tokenized_X1 = tokenizer.texts_to_sequences(X1)
-    list_tokenized_X2 = tokenizer.texts_to_sequences(X2)
-    if debug:
-        print('Tokenized sentences:', list_tokenized_X1, '\t', list_tokenized_X2)
-
-    padded_token_X1 = keras.preprocessing.sequence.pad_sequences(
-        list_tokenized_X1, maxlen=max_len)
-    padded_token_X2 = keras.preprocessing.sequence.pad_sequences(
-        list_tokenized_X2, maxlen=max_len)
-    if debug:
-        print('Padded sentences:', padded_token_X1, '\t', padded_token_X2)
-
-    return torch.tensor(padded_token_X1, dtype=torch.long), torch.tensor(padded_token_X2, dtype=torch.long)
-
 
 def load_latest_model(args, model_obj):
     if args.dataset == "Ant":
         list_of_models = glob.glob(
-            f"{MODEL_PATH}/{args.dataset}_{args.model}_epoch_*_{args.word_segment}.pkl")
+            f"{args.model_path}/{args.dataset}_{args.model}_epoch_*_{args.word_segment}.pkl")
     elif args.dataset == "Quora":
         list_of_models = glob.glob(
-            f"{MODEL_PATH}/{args.dataset}_{args.model}_epoch_*.pkl")
+            f"{args.model_path}/{args.dataset}_{args.model}_epoch_*.pkl")
     latest_checkpoint = max(list_of_models, key=os.path.getctime)
     model_obj.load_state_dict(torch.load(latest_checkpoint))
-
-
-def train(args, model, tokenizer, device, optimizer):
-    model.train()
-
-    X1, X2, Y = training_data_loader(
-        mode=args.word_segment, dataset=args.dataset)
-
-    stratified_folder = StratifiedKFold(
-        n_splits=args.k_fold, random_state=args.seed, shuffle=True)
-
-    for epoch, (train_index, test_index) in enumerate(stratified_folder.split(X1, Y)):
-        X_fold_train1, X_fold_test1 = X1[train_index], X1[test_index]
-        X_fold_train2, X_fold_test2 = X2[train_index], X2[test_index]
-        Y_fold_train, Y_fold_test = Y[train_index], Y[test_index]
-
-        X_tensor_train_1, X_tensor_train_2 = tokenize_and_padding(
-            X_fold_train1, X_fold_train2, args.max_len, tokenizer)
-        X_tensor_test_1, X_tensor_test_2 = tokenize_and_padding(
-            X_fold_test1, X_fold_test2, args.max_len, tokenizer)
-
-        train_tensor = torch_data.TensorDataset(X_tensor_train_1, X_tensor_train_2,
-            torch.tensor(Y_fold_train.values, dtype=torch.float))
-        train_dataset = torch_data.DataLoader(
-            train_tensor, batch_size=args.batch_size)
-        test_tensor = torch_data.TensorDataset(X_tensor_test_1, X_tensor_test_2,
-            torch.tensor(Y_fold_test.values, dtype=torch.float))
-        test_dataset = torch_data.DataLoader(
-            test_tensor, batch_size=args.test_batch_size)
-
-        for batch_idx, (input_1, input_2, target) in enumerate(train_dataset):
-            input_1, input_2, target = input_1.to(
-                device), input_2.to(device), target.to(device)
-            optimizer.zero_grad()
-            output = model(input_1, input_2)
-            loss = F.binary_cross_entropy(output, target.view_as(output))
-            loss.backward()
-            optimizer.step()
-            if batch_idx % args.log_interval == 0:
-                print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\t'.format(
-                    epoch + 1, batch_idx *
-                    len(input_1), len(train_dataset.dataset),
-                    100. * batch_idx / len(train_dataset), loss.item()))
-            if batch_idx % args.test_interval == 0:
-                test(args, model, device, test_dataset)
-                model.train()  # switch the model mode back to train
-
-        if not args.not_save_model:
-            if args.dataset == "Ant":
-                torch.save(model.state_dict(),
-                           f"{MODEL_PATH}/{args.dataset}_{args.model}_epoch_{epoch + 1}_{args.word_segment}.pkl")
-            elif args.dataset == "Quora":
-                torch.save(model.state_dict(),
-                           f"{MODEL_PATH}/{args.dataset}_{args.model}_epoch_{epoch + 1}.pkl")
-
-
-def test(args, model, device, test_loader):
-    model.eval()  # Turn on evaluation mode which disables dropout
-    test_loss = 0
-    correct = 0
-    with torch.no_grad():
-        for input_1, input_2, target in test_loader:
-            input_1, input_2, target = input_1.to(
-                device), input_2.to(device), target.to(device)
-            output = model(input_1, input_2)
-            # sum up batch loss
-            test_loss += F.binary_cross_entropy(output,
-                                                target.view_as(output), reduction='sum').item()
-            pred = output.round()
-            correct += pred.eq(target.view_as(pred)).sum().item()
-
-    test_loss /= len(test_loader.dataset)
-
-    print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-        test_loss, correct, len(test_loader.dataset),
-        100. * correct / len(test_loader.dataset)))
 
 
 def predict(args, model, tokenizer, device):
@@ -266,6 +85,9 @@ def main():
     parser.add_argument('--mode', type=str, default='train', metavar='mode',
                         choices=['train', 'test', 'predict'],
                         help='script mode [train/test/predict] (default: train)')
+    parser.add_argument('--sampling', type=str, default='random', metavar='mode',
+                        choices=['random', 'balance'],
+                        help='sampling mode during training (default: random)')
     parser.add_argument('--model', type=str, default='ERCNN', metavar='model',
                         choices=['ERCNN', 'Transformer'],
                         help='model to use [ERCNN/Transformer] (default: ERCNN)')
@@ -309,12 +131,12 @@ def main():
     args.k_fold = 10
     args.max_len = 48
     args.max_feature = 20000
+    args.model_path = MODEL_PATH
 
-    X1, X2, _ = training_data_loader(
-        mode=args.word_segment, dataset=args.dataset)
     tokenizer, embeddings_matrix = embedding_loader(
-        X1, X2, mode=args.word_segment, dataset=args.dataset)
+        mode=args.word_segment, dataset=args.dataset)
 
+    # model and optimizer
     if args.model == "ERCNN":
         model = EnhancedRCNN(embeddings_matrix, args.max_len).to(device)
     elif args.model == "Transformer":
@@ -323,21 +145,16 @@ def main():
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(
         args.beta1, args.beta2), eps=args.epsilon)
 
+    # sampling mode
+    if args.sampling == "random":
+        from random_train import train, test
+
     if args.mode == "train":
         train(args, model, tokenizer, device, optimizer)
-
-    if args.mode == "test":
+    elif args.mode == "test":
         load_latest_model(args, model)
-        X1, X2, Y = training_data_loader(
-            mode=args.word_segment, dataset=args.dataset)
-        input_X1, input_X2 = tokenize_and_padding(X1, X2, args.max_len, tokenizer)
-        input_tensor = torch_data.TensorDataset(input_X1, input_X2,
-            torch.tensor(Y.values, dtype=torch.float))
-        test_loader = torch_data.DataLoader(
-            input_tensor, batch_size=args.test_batch_size)
-        test(args, model, device, test_loader)
-    
-    if args.mode == "predict":
+        test(args, model, device)
+    elif args.mode == "predict":
         load_latest_model(args, model)
         predict(args, model, tokenizer, device)
 
