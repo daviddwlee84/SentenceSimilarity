@@ -102,7 +102,7 @@ def main():
     parser.add_argument('--dataset', type=str, default='Ant', metavar='dataset',
                         choices=['Ant', 'Quora'],
                         help='[Ant] Finance or [Quora] Question Pairs (default: Ant)')
-    parser.add_argument('--mode', type=str, default='train', metavar='mode',
+    parser.add_argument('--mode', type=str, default='both', metavar='mode',
                         choices=['train', 'test', 'both', 'predict'],
                         help='script mode [train/test/both/predict] (default: both)')
     parser.add_argument('--sampling', type=str, default='balance', metavar='mode',

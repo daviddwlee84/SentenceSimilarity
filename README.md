@@ -137,10 +137,8 @@ Data
 
 > Test the test during training: `python3 run.py --mode train --word-segment word --log-interval 1 --test-interval 1`
 
-* Pure Test
 * More evaluation matrics: recall & f1-score
-* Data Generator
-  * generate batch with half positive and negative sample
+* Continue training?!
 
 ## Notes about Virtualenv
 
@@ -196,3 +194,10 @@ Add alias in bashrc
   * keras.layers.Dense => torch.nn.Linear
 * [Same implementation different results between Keras and PyTorch - lstm](https://discuss.pytorch.org/t/same-implementation-different-results-between-keras-and-pytorch-lstm/39146)
 * [Convert Pandas dataframe to PyTorch tensor?](https://stackoverflow.com/questions/50307707/convert-pandas-dataframe-to-pytorch-tensor)
+
+### Related Project
+
+* [brightmart/nlu_sim](https://github.com/brightmart/nlu_sim) - all kinds of baseline models for sentence similarity
+  * Imbalance Classification for Skew Data
+  * Models including ESIM
+* [ESIM](https://github.com/HsiaoYetGun/ESIM)
