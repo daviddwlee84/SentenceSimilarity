@@ -87,11 +87,14 @@ def predict(args, model, tokenizer, device):
 def print_settings(args):
     logging.info('Configurations:')
     logging.info(f'\tDataset\t\t: {args.dataset}')
+    if args.dataset == "Ant":
+        logging.info(f'\t Word Segment\t: {args.word_segment}')
     logging.info(f'\tMode\t\t: {args.mode}')
     logging.info(f'\tSampling Mode\t: {args.sampling}')
+    if args.sampling == "balance":
+        logging.info(f'\t Generate train\t: {args.generate_train}')
+        logging.info(f'\t Generate test\t: {args.generate_test}')
     logging.info(f'\tUsing Model\t: {args.model}')
-    if args.dataset == "Ant":
-        logging.info(f'\tWord Segment\t: {args.word_segment}')
 
 def main():
     # Arguments
@@ -105,6 +108,10 @@ def main():
     parser.add_argument('--sampling', type=str, default='balance', metavar='mode',
                         choices=['random', 'balance'],
                         help='sampling mode during training (default: balance)')
+    parser.add_argument('--generate-train', action='store_true', default=False,
+                        help='use generated negative samples when training (used in balance sampling)')
+    parser.add_argument('--generate-test', action='store_true', default=False,
+                        help='use generated negative samples when testing (used in balance sampling)')
     parser.add_argument('--model', type=str, default='ERCNN', metavar='model',
                         choices=['ERCNN', 'Transformer'],
                         help='model to use [ERCNN/Transformer] (default: ERCNN)')

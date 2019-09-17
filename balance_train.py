@@ -27,7 +27,7 @@ def train(args, model, tokenizer, device, optimizer):
         Y_fold_train, Y_fold_test = Y[train_index], Y[test_index]
 
         train_data_helper = BalanceDataHelper(
-            X_fold_train1, X_fold_train2, Y_fold_train, args.seed)
+            X_fold_train1, X_fold_train2, Y_fold_train, args.seed, generate_mode=args.generate_train)
         train_dataset = train_data_helper.batch_iter(args.batch_size)
         test_data_helper = BalanceDataHelper(
             X_fold_test1, X_fold_test2, Y_fold_test, args.seed)
@@ -93,7 +93,7 @@ def test(args, model, tokenizer, device):
     _, _, _, X1, X2, Y = train_test_data_loader(
         args.seed, mode=args.word_segment, dataset=args.dataset, test_split=args.test_split)
     test_data_helper = BalanceDataHelper(
-        X1, X2, Y, args.seed, generate_mode=False)
+        X1, X2, Y, args.seed, generate_mode=args.generate_test)
     logger.info(f'Test on {test_data_helper.dataset_size} amount of data')
     _test_on_dataloader(args, model, tokenizer, device,
                         test_data_helper, dataset="Test")
