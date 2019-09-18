@@ -6,23 +6,80 @@
 # Data preprocessing
 python3 preprocess.py [word/char] train
 
-# Training
+# Train & Evaluate
 ## Ant
-python3 run.py --dataset Ant --model [ERCNN/Transformer] --mode train --word-segment [word/char]
+python3 run.py --dataset Ant --model [ERCNN/Transformer] --word-segment [word/char]
 ## Quora
-python3 run.py --dataset Quora --model [ERCNN/Transformer] --mode train
+python3 run.py --dataset Quora --model [ERCNN/Transformer]
+```
 
-# Test (using entire training set)
-## Ant
-python3 run.py --dataset Ant --model [ERCNN/Transformer] --mode test --word-segment [word/char]
-## Quora
-python3 run.py --dataset Quora --model [ERCNN/Transformer] --mode test
+Dataset
 
-# Predict (input two sentence manually)
-## Ant
-python3 run.py --dataset Ant --model [ERCNN/Transformer] --mode predict --word-segment [word/char]
-## Quora
-python3 run.py --dataset Quora --model [ERCNN/Transformer] --mode predict
+* `Ant`
+* `Quora`
+
+Mode
+
+* `train`
+  * using 70% training data
+  * k-fold cross-validation (k == training epochs)
+  * will test the performance using valid set when each epoch end and save the model
+* `test`
+  * using 30% test data
+  * will load the latest model with the same settings
+* `both` (include train and test)
+* `predict`
+  * will load the latest model with the same settings
+
+Model
+
+* `ERCNN`
+* `Transformer`
+  * ERCNN + replace the BiRNN with Transformer
+
+Sampling
+
+* `random` (Original): data is skewed (the ratio is listed below)
+* `balance`: positive vs. negative data will be the same
+  * `generate-train`
+  * `generate-test`
+
+```txt
+$ python3 run.py --help
+usage: run.py [-h] [--dataset dataset] [--mode mode] [--sampling mode]
+              [--generate-train] [--generate-test] [--model model]
+              [--word-segment WS] [--batch-size N] [--test-batch-size N]
+              [--k-fold N] [--lr N] [--beta1 N] [--beta2 N] [--epsilon N]
+              [--no-cuda] [--seed N] [--test-split N] [--log-interval N]
+              [--test-interval N] [--not-save-model]
+
+PyTorch MNIST Example
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --dataset dataset    [Ant] Finance or [Quora] Question Pairs (default: Ant)
+  --mode mode          script mode [train/test/both/predict] (default: both)
+  --sampling mode      sampling mode during training (default: balance)
+  --generate-train     use generated negative samples when training (used in
+                       balance sampling)
+  --generate-test      use generated negative samples when testing (used in
+                       balance sampling)
+  --model model        model to use [ERCNN/Transformer] (default: ERCNN)
+  --word-segment WS    chinese word split mode [word/char] (default: char)
+  --batch-size N       input batch size for training (default: 256)
+  --test-batch-size N  input batch size for testing (default: 1000)
+  --k-fold N           k-fold cross validation i.e. number of epochs to train
+                       (default: 10)
+  --lr N               learning rate (default: 0.001)
+  --beta1 N            beta 1 for Adam optimizer (default: 0.9)
+  --beta2 N            beta 2 for Adam optimizer (default: 0.999)
+  --epsilon N          epsilon for Adam optimizer (default: 1e-08)
+  --no-cuda            disables CUDA training
+  --seed N             random seed (default: 16)
+  --test-split N       test data split (default: 0.3)
+  --log-interval N     how many batches to wait before logging training status
+  --test-interval N    how many batches to test during training
+  --not-save-model     for not saving the current model
 ```
 
 ## Data
@@ -30,8 +87,10 @@ python3 run.py --dataset Quora --model [ERCNN/Transformer] --mode predict
 Original
 
 * `raw_data/competition_train.csv` - Ant Financial
+* `raw_data/train.csv` - Quora Question Pairs
 * `word2vec/substoke_char.vec.avg` - Ant Financial
 * `word2vec/substoke_word.vec.avg` - Ant Financial
+* `data/stopwords.txt` - Ant Financial
 * `word2vec/glove.word2vec.txt` - Quora Question Pairs
 
   ```sh
@@ -52,14 +111,14 @@ Generated
 
 * `data/sentence_char_train.csv` - Ant Financial
 * `data/sentence_word_train.csv` - Ant Financial
-* `model/*`
-* `word2vec/Ant_tokenizer.pickle` - Ant Financial
+* `word2vec/Ant_char_tokenizer.pickle` - Ant Financial
+* `word2vec/Ant_char_embed_matrix.pickle` - Ant Financial
+* `word2vec/Ant_word_tokenizer.pickle` - Ant Financial
+* `word2vec/Ant_word_embed_matrix.pickle` - Ant Financial
 * `word2vec/Quora_tokenizer.pickle` - Quora Question Pairs
-
-Not Sure
-
-* `data/stopwords.txt` - Ant Financial
-* `data/test.csv` - Ant Financial
+* `word2vec/Quora_embed_matrix.pickle` - Quora Question Pairs
+* `model/*`
+* `log/*`
 
 ## Dataset
 

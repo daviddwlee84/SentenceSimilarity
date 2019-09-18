@@ -1,9 +1,9 @@
-torch
-torchvision
-keras
-tensorflow
-gensim
 numpy
 pandas
-jieba
 sklearn
+torch
+torchvision
+tensorflow
+keras
+gensim
+jieba
