@@ -92,6 +92,8 @@ Original
 * `word2vec/substoke_word.vec.avg` - Ant Financial
 * `data/stopwords.txt` - Ant Financial
 * `word2vec/glove.word2vec.txt` - Quora Question Pairs
+* `raw_data/task3_train.txt` - CCSK 2018
+* `raw_data/task3_dev.txt` - CCSK 2018
 
   ```sh
   wget http://nlp.stanford.edu/data/glove.840B.300d.zip
@@ -166,6 +168,22 @@ Data
     * question1, question2
 * about 63% non-duplicate questions and 37% duplicate questions in the training data set
 
+### CCSK 2018
+
+* [微眾銀行智能客服問句匹配大賽](https://biendata.com/competition/CCKS2018_3/)
+
+### CHIP 2018
+
+* [第四屆中國健康信息處理會議](https://biendata.com/competition/chip2018/)
+
+> 須連繫主辦方才能取得數據
+
+### PiPiDai
+
+* [第三屆魔鏡杯大賽](https://ai.ppdai.com/mirror/goToMirrorDetail?mirrorId=1)
+
+> Link失效
+
 ## Experiment
 
 ### Ant Financial
@@ -193,8 +211,6 @@ Data
 | ERCNN-Transformer | GloVe (300d) | none                | 5     | 10.2011      | 63%      | learned nothing (to be improved)                   |
 
 ## TODO
-
-> Test the test during training: `python3 run.py --mode train --word-segment word --log-interval 1 --test-interval 1`
 
 * More evaluation matrics: recall & f1-score
 * Continue training?!
@@ -260,3 +276,19 @@ Add alias in bashrc
   * Imbalance Classification for Skew Data
   * Models including ESIM
 * [ESIM](https://github.com/HsiaoYetGun/ESIM)
+
+### Article
+
+* [【金融大腦-一支優秀的隊伍】比賽經驗分享](https://openclub.alipay.com/club/history/read/9106)
+* [問題對語義相似度計算-參賽總結](http://www.zhuzongkui.top/2018/08/10/competition-summary/?nsukey=pP8wE99JdxhVIRBers958wxK101Qowhy%2B7NNjtgQZoEamy6LNx7T4rtO8LzwlMSocnlO5eW4D1NRExTJ61iafIN0fUD6etae3r5dIXkdehi0Mu0wtucwpaQO3iFlYmMPb6BNJZiCa%2FI4R0%2F2u7jAhTqH4yIRUCkHogG6E2wvqncsl4eju4hKOdHO8pS%2FbXEuQJueu4J%2BEk%2Bau2fWUFSvmA%3D%3D)
+* [Kaggle文本語義相似度計算Top5解決方案分享](https://www.sohu.com/a/287860625_787107) - Dataset links
+  * [從Kaggle賽題: Quora Question Pairs 看文本相似性/相關性](https://zhuanlan.zhihu.com/p/35093355)
+
+### Candidate Set
+
+* [Glyph-vectors](https://arxiv.org/pdf/1901.10125.pdf)
+* Transformer
+* [Capsule Network](https://en.wikipedia.org/wiki/Capsule_neural_network)
+  * [Capsule Networks: The New Deep Learning Network](https://towardsdatascience.com/capsule-networks-the-new-deep-learning-network-bd917e6818e8)
+* [cw2vec](http://www.statnlp.org/wp-content/uploads/papers/2018/cw2vec/cw2vec.pdf)
+  * [github](https://github.com/bamtercelboo/cw2vec)
