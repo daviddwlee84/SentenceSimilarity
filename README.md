@@ -4,7 +4,8 @@
 
 ```sh
 # Data preprocessing
-python3 preprocess.py [word/char] train
+## Ant
+python3 ant_preprocess.py [word/char] train
 
 # Train & Evaluate
 ## Ant

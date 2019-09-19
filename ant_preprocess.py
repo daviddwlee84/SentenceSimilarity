@@ -1,4 +1,7 @@
 # coding=utf-8
+
+# Chinese data preprocessing for Ant Finance competition
+
 import sys
 import codecs
 import jieba
