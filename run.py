@@ -98,7 +98,7 @@ def print_settings(args):
 
 def main():
     # Arguments
-    parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
+    parser = argparse.ArgumentParser(description='Enhanced RCNN on Sentence Similarity')
     parser.add_argument('--dataset', type=str, default='Ant', metavar='dataset',
                         choices=['Ant', 'Quora'],
                         help='[Ant] Finance or [Quora] Question Pairs (default: Ant)')

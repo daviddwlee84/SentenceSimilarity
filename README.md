@@ -53,7 +53,7 @@ usage: run.py [-h] [--dataset dataset] [--mode mode] [--sampling mode]
               [--no-cuda] [--seed N] [--test-split N] [--log-interval N]
               [--test-interval N] [--not-save-model]
 
-PyTorch MNIST Example
+Enhanced RCNN on Sentence Similarity
 
 optional arguments:
   -h, --help           show this help message and exit
