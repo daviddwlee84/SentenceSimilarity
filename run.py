@@ -204,12 +204,12 @@ def main():
     if args.mode == "train" or args.mode == "both":
         logging.info(f"Training using {args.sampling} sampling mode...")
         train(args, model, tokenizer, device, optimizer)
-    elif args.mode == "test" or args.mode == "both":
+    if args.mode == "test" or args.mode == "both":
         logging.info(f"Testing on {args.test_split*10}% data...")
         if args.mode != "both":
             load_latest_model(args, model)
         test(args, model, tokenizer, device)
-    elif args.mode == "predict":
+    if args.mode == "predict":
         logging.info("Predicting manually...")
         load_latest_model(args, model)
         predict(args, model, tokenizer, device)
