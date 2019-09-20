@@ -1,1 +1,5 @@
 raw_data/PiPiDai filter=lfs diff=lfs merge=lfs -text
+raw_data/competition_train.csv filter=lfs diff=lfs merge=lfs -text
+raw_data/task3_train.txt filter=lfs diff=lfs merge=lfs -text
+word2vec/substoke_char.vec.avg filter=lfs diff=lfs merge=lfs -text
+word2vec/substoke_word.vec.avg filter=lfs diff=lfs merge=lfs -text
