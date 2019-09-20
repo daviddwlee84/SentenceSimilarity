@@ -9,7 +9,8 @@ import time
 import torch
 import torch.optim as optim
 
-from rcnn import EnhancedRCNN, EnhancedRCNN_Transformer
+from models.rcnn import EnhancedRCNN
+from models.rcnn_transformer import EnhancedRCNN_Transformer
 from data_prepare import embedding_loader, tokenize_and_padding
 
 MODEL_PATH = "model"
