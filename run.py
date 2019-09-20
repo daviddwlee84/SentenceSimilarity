@@ -111,8 +111,8 @@ def main():
     parser = argparse.ArgumentParser(
         description='Enhanced RCNN on Sentence Similarity')
     parser.add_argument('--dataset', type=str, default='Ant', metavar='dataset',
-                        choices=['Ant', 'Quora'],
-                        help='[Ant] Finance or [Quora] Question Pairs (default: Ant)')
+                        choices=['Ant', 'CCSK', 'Quora'],
+                        help='Chinese: Ant, CCSK; English: Quora (default: Ant)')
     parser.add_argument('--mode', type=str, default='both', metavar='mode',
                         choices=['train', 'test', 'both', 'predict'],
                         help='script mode [train/test/both/predict] (default: both)')
@@ -196,7 +196,7 @@ def main():
     print_settings(args)
 
     tokenizer, embeddings_matrix = embedding_loader(
-        mode=args.word_segment, dataset=args.dataset)
+        mode=args.word_segment, embed=args.chinese_embed, dataset=args.dataset)
 
     # model and optimizer
     logging.info("Building model...")

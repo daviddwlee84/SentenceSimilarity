@@ -6,6 +6,8 @@
 # Data preprocessing
 ## Ant
 python3 ant_preprocess.py [word/char] train
+## CCSK
+python3 ccsk_preprocess.py
 
 # Train & Evaluate
 ## Ant
@@ -174,6 +176,11 @@ Data
 ### CCSK 2018
 
 * [微眾銀行智能客服問句匹配大賽](https://biendata.com/competition/CCKS2018_3/)
+
+Data
+
+* Positive data: 50%
+* Data amount: 100000
 
 ### CHIP 2018
 

@@ -92,3 +92,4 @@ if __name__ == "__main__":
         jieba.del_word(word)
 
     os.makedirs(DATA_PATH, exist_ok=True)
+    main()
