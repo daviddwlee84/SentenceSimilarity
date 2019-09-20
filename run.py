@@ -16,17 +16,18 @@ from data_prepare import embedding_loader, tokenize_and_padding
 MODEL_PATH = "model"
 LOG_PATH = "log"
 
+
 def load_latest_model(args, model_obj):
-    if args.dataset == "Ant":
-        possible_model_name = f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_*_{args.word_segment}.pkl"
-    elif args.dataset == "Quora":
+    if args.dataset != "Quora":  # Chinese dataset
+        possible_model_name = f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_*_{args.chinese_embed}_{args.word_segment}.pkl"
+    else:  # English dataset
         possible_model_name = f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_*.pkl"
-            
+
     list_of_models = glob.glob(possible_model_name)
     if len(list_of_models) == 0:
-        logging.warning(f'No candidate model name "{possible_model_name}" found')
-        exit(1)
-        
+        logging.warning(
+            f'No candidate model name "{possible_model_name}" found')
+
     latest_checkpoint = max(list_of_models, key=os.path.getctime)
     logging.info(f"Loading the latest model: {latest_checkpoint}")
     model_obj.load_state_dict(torch.load(latest_checkpoint))
@@ -36,25 +37,21 @@ def predict(args, model, tokenizer, device):
     model.eval()
 
     # zh_en = input('Chinese or English:')
-    if args.dataset == "Ant":
+    if args.dataset != "Quora":  # Chinese dataset
         zh_en = 'c'
-    elif args.dataset == "Quora":
+    else:  # English dataset
         zh_en = 'e'
 
     raw_sentence_1 = input('Input test setnetnce 1: ')
     raw_sentence_2 = input('Input test setnetnce 2: ')
 
-    if zh_en[0].lower() == 'c': # Chinese
-        from preprocess import stopwordslist
+    if zh_en[0].lower() == 'c':  # Chinese
+        from ant_preprocess import stopwordslist
         stopwords = stopwordslist()
-        sentence_1 = []; sentence_2 = []
+        sentence_1 = []
+        sentence_2 = []
         if args.word_segment == "word":
             import jieba
-            for word in ['花呗','借呗','支付宝','余额宝','饿了么','微粒贷','双十一','小蓝车','拼多多','外卖','美团','账单','到账','能不能','应还','会不会','找不到','另一个','微信','网商贷']:
-                jieba.add_word(word)
-            for word in ["开花", "开了花", "提花", "申花", "天花", "银花", "我花", "借花"]:
-                jieba.del_word(word)
-            
             for c in jieba.cut(raw_sentence_1):
                 if c not in stopwords and c != ' ':
                     sentence_1.append(c)
@@ -68,7 +65,7 @@ def predict(args, model, tokenizer, device):
             for c in raw_sentence_2:
                 if c not in stopwords and c != ' ':
                     sentence_2.append(c)
-    elif zh_en[0].lower() == 'e': # English
+    elif zh_en[0].lower() == 'e':  # English
         sentence_1 = raw_sentence_1.split()
         sentence_2 = raw_sentence_2.split()
 
@@ -87,7 +84,8 @@ def predict(args, model, tokenizer, device):
 
 def get_model_parameters(model, trainable_only=False):
     if trainable_only:
-        pytorch_total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        pytorch_total_params = sum(p.numel()
+                                   for p in model.parameters() if p.requires_grad)
     else:
         pytorch_total_params = sum(p.numel() for p in model.parameters())
     return pytorch_total_params
@@ -96,8 +94,10 @@ def get_model_parameters(model, trainable_only=False):
 def print_settings(args):
     logging.info('Configurations:')
     logging.info(f'\tDataset\t\t: {args.dataset}')
-    if args.dataset == "Ant":
+    if args.dataset != "Quora":  # All the Chinese dataset
         logging.info(f'\t Word Segment\t: {args.word_segment}')
+        logging.info(f'\t Embedding\t: {args.chinese_embed}')
+    logging.info(f'\t Train Embedding: {args.train_embed}')
     logging.info(f'\tMode\t\t: {args.mode}')
     logging.info(f'\tSampling Mode\t: {args.sampling}')
     if args.sampling == "balance":
@@ -108,7 +108,8 @@ def print_settings(args):
 
 def main():
     # Arguments
-    parser = argparse.ArgumentParser(description='Enhanced RCNN on Sentence Similarity')
+    parser = argparse.ArgumentParser(
+        description='Enhanced RCNN on Sentence Similarity')
     parser.add_argument('--dataset', type=str, default='Ant', metavar='dataset',
                         choices=['Ant', 'Quora'],
                         help='[Ant] Finance or [Quora] Question Pairs (default: Ant)')
@@ -128,6 +129,11 @@ def main():
     parser.add_argument('--word-segment', type=str, default='char', metavar='WS',
                         choices=['word', 'char'],
                         help='chinese word split mode [word/char] (default: char)')
+    parser.add_argument('--chinese-embed', type=str, default='cw2vec', metavar='embed',
+                        choices=['cw2vec', 'glyce'],
+                        help='chinese embedding (default: cw2vec)')
+    parser.add_argument('--train-embed', action='store_true', default=False,
+                        help='whether to freeze the embedding parameters')
     parser.add_argument('--batch-size', type=int, default=256, metavar='N',
                         help='input batch size for training (default: 256)')
     parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
@@ -157,7 +163,6 @@ def main():
 
     args = parser.parse_args()
 
-
     # Logging
     ctime = time.localtime()
     logging.basicConfig(level=logging.DEBUG,
@@ -175,7 +180,6 @@ def main():
     console.setFormatter(formatter)
     # add the handler to the root logger
     logging.getLogger('').addHandler(console)
-
 
     # PyTorch device configure (cuda/GPU or CPU)
     use_cuda = not args.no_cuda and torch.cuda.is_available()
@@ -197,10 +201,11 @@ def main():
     # model and optimizer
     logging.info("Building model...")
     if args.model == "ERCNN":
-        model = EnhancedRCNN(embeddings_matrix, args.max_len).to(device)
+        model = EnhancedRCNN(
+            embeddings_matrix, args.max_len, freeze_embed=not args.train_embed).to(device)
     elif args.model == "Transformer":
         model = EnhancedRCNN_Transformer(
-            embeddings_matrix, args.max_len).to(device)
+            embeddings_matrix, args.max_len, freeze_embed=not args.train_embed).to(device)
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(
         args.beta1, args.beta2), eps=args.epsilon)
     logging.info(f'Model Complexity (Parameters):')

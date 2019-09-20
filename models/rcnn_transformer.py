@@ -7,12 +7,13 @@ from models.functions import *
 
 
 class EnhancedRCNN_Transformer(nn.Module):
-    def __init__(self, embeddings_matrix, max_len, num_class=1, transformer_dim=384, dropout_rate=0.2, linear_size=384, conv_dim=64):
+    def __init__(self, embeddings_matrix, max_len, num_class=1, transformer_dim=384, dropout_rate=0.2, linear_size=384, conv_dim=64, freeze_embed=True):
         super(EnhancedRCNN_Transformer, self).__init__()
 
         self.max_len = max_len
         fc_out_dims = int(linear_size//2)
-        self.embedding = nn.Embedding.from_pretrained(embeddings_matrix)
+        self.embedding = nn.Embedding.from_pretrained(
+            embeddings_matrix, freeze=freeze_embed)
         self.batchnrom = nn.BatchNorm1d(max_len)
         self.dropout = nn.Dropout(p=dropout_rate)
         self.global_avg_pool = nn.AvgPool1d(max_len)

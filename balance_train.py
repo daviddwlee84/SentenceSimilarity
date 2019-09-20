@@ -54,10 +54,10 @@ def train(args, model, tokenizer, device, optimizer):
         model.train()  # switch the model mode back to train
         if not args.not_save_model:
             logger.info(f'Saving model on epoch {epoch + 1}')
-            if args.dataset == "Ant":
+            if args.dataset != "Quora":  # Chinese dataset
                 torch.save(model.state_dict(),
-                           f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_{epoch + 1}_{args.word_segment}.pkl")
-            elif args.dataset == "Quora":
+                           f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_{epoch + 1}_{args.chinese_embed}_{args.word_segment}.pkl")
+            else:  # English dataset
                 torch.save(model.state_dict(),
                            f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_{epoch + 1}.pkl")
 
