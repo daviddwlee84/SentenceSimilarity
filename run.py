@@ -84,6 +84,14 @@ def predict(args, model, tokenizer, device):
     print('Predict similarity:', output)
 
 
+def get_model_parameters(model, trainable_only=False):
+    if trainable_only:
+        pytorch_total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    else:
+        pytorch_total_params = sum(p.numel() for p in model.parameters())
+    return pytorch_total_params
+
+
 def print_settings(args):
     logging.info('Configurations:')
     logging.info(f'\tDataset\t\t: {args.dataset}')
@@ -95,6 +103,7 @@ def print_settings(args):
         logging.info(f'\t Generate train\t: {args.generate_train}')
         logging.info(f'\t Generate test\t: {args.generate_test}')
     logging.info(f'\tUsing Model\t: {args.model}')
+
 
 def main():
     # Arguments
@@ -193,6 +202,9 @@ def main():
             embeddings_matrix, args.max_len).to(device)
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(
         args.beta1, args.beta2), eps=args.epsilon)
+    logging.info(f'Model Complexity (Parameters):')
+    logging.info(f'\tAll\t\t: {get_model_parameters(model)}')
+    logging.info(f'\tTrainable\t: {get_model_parameters(model, True)}')
 
     # sampling mode
     if args.sampling == "random":

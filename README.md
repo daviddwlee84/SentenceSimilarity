@@ -16,8 +16,10 @@ python3 run.py --dataset Quora --model [ERCNN/Transformer]
 
 Dataset
 
-* `Ant`
-* `Quora`
+* `Ant` - Chinese
+* `CCSK` - Chinese
+* `PiPiDai` - Chinese (encoded)
+* `Quora` - English
 
 Mode
 
@@ -184,6 +186,8 @@ Data
 * [第三屆魔鏡杯大賽](https://ai.ppdai.com/mirror/goToMirrorDetail?mirrorId=1)
 
 > Link失效
+>
+> * [LittletreeZou/Question-Pairs-Matching](https://github.com/LittletreeZou/Question-Pairs-Matching)
 
 ## Experiment
 
@@ -259,6 +263,7 @@ Add alias in bashrc
 * [torch.optim](https://pytorch.org/docs/stable/optim.html)
   * `torch.optim.Adam(params, lr=0.001, betas=(0.9, 0.999), eps=1e-08, weight_decay=0, amsgrad=False`
 * [How to do product of matrices in PyTorch](https://stackoverflow.com/questions/44524901/how-to-do-product-of-matrices-in-pytorch)
+* [Check the total number of parameters in a PyTorch model](https://stackoverflow.com/questions/49201236/check-the-total-number-of-parameters-in-a-pytorch-model)
 
 ### Gensim
 
