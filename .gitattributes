@@ -1,5 +1,9 @@
-raw_data/PiPiDai filter=lfs diff=lfs merge=lfs -text
 raw_data/competition_train.csv filter=lfs diff=lfs merge=lfs -text
 raw_data/task3_train.txt filter=lfs diff=lfs merge=lfs -text
 word2vec/substoke_char.vec.avg filter=lfs diff=lfs merge=lfs -text
 word2vec/substoke_word.vec.avg filter=lfs diff=lfs merge=lfs -text
+raw_data/PiPiDai/char_embed.txt filter=lfs diff=lfs merge=lfs -text
+raw_data/PiPiDai/question.csv filter=lfs diff=lfs merge=lfs -text
+raw_data/PiPiDai/test.csv filter=lfs diff=lfs merge=lfs -text
+raw_data/PiPiDai/train.csv filter=lfs diff=lfs merge=lfs -text
+raw_data/PiPiDai/word_embed.txt filter=lfs diff=lfs merge=lfs -text

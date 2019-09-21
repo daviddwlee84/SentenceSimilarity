@@ -29,6 +29,13 @@ def data_loader(mode="word", dataset="Ant"):
         X2 = data["doc2"]
         Y = data["label"]
 
+    elif dataset == "PiPiDai":
+        data = pd.read_csv(f"data/PiPiDai_{mode}s_train.csv")
+
+        X1 = data.q1
+        X2 = data.q2
+        Y = data.label
+
     elif dataset == "Quora":
         data = pd.read_csv(f"raw_data/train.csv", encoding="utf-8")
         data['id'] = data['id'].apply(str)
@@ -59,7 +66,7 @@ def train_test_data_loader(random_seed, mode="word", dataset="Ant", test_split=0
 def embedding_loader(embedding_folder="word2vec", embed="cw2vec", mode="word", dataset="Ant"):
     X1, X2, _ = data_loader(mode, dataset)
 
-    if dataset == "Ant" or dataset == "CCSK":
+    if dataset == "Ant" or dataset == "CCSK" or dataset == "PiPiDai":
         tokenizer_pickle_file = f'{embedding_folder}/{dataset}_{mode}_tokenizer.pickle'
         embed_pickle_file = f'{embedding_folder}/{dataset}_{mode}_embed_matrix.pickle'
     elif dataset == "Quora":
@@ -90,6 +97,9 @@ def embedding_loader(embedding_folder="word2vec", embed="cw2vec", mode="word", d
             if embed == "cw2vec":
                 embed_model = KeyedVectors.load_word2vec_format(
                     f"{embedding_folder}/substoke_{mode}.vec.avg", binary=False, encoding='utf8')
+        elif dataset == "PiPiDai":
+            embed_model = KeyedVectors.load_word2vec_format(
+                f"raw_data/PiPiDai/{mode}_embed.txt", binary=False, encoding='utf8')
         elif dataset == "Quora":
             embed_model = KeyedVectors.load_word2vec_format(
                 f"{embedding_folder}/glove.word2vec.txt", binary=False, encoding='utf8')
