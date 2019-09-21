@@ -8,11 +8,14 @@
 python3 ant_preprocess.py [word/char] train
 ## CCSK
 python3 ccsk_preprocess.py
+## PiPiDai
+python3 pipidai_preprocess.py
 
 # Train & Evaluate
-## Ant
-python3 run.py --dataset Ant --model [ERCNN/Transformer] --word-segment [word/char]
-## Quora
+## Chinese
+python3 run.py --dataset [Ant/CCSK/PiPiDai] --model [ERCNN/Transformer] --word-segment [word/char]
+# train all the model at once use ./train_all_data_at_once.sh
+## English
 python3 run.py --dataset Quora --model [ERCNN/Transformer]
 ```
 

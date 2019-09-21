@@ -154,6 +154,8 @@ def main():
                         help='random seed (default: 16)')
     parser.add_argument('--test-split', type=float, default=0.3, metavar='N',
                         help='test data split (default: 0.3)')
+    parser.add_argument('--logdir', type=str, default=LOG_PATH, metavar='path',
+                        help='set log directory (default: ./log)')
     parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                         help='how many batches to wait before logging training status')
     parser.add_argument('--test-interval', type=int, default=100, metavar='N',
@@ -165,11 +167,13 @@ def main():
 
     # Logging
     ctime = time.localtime()
+    os.makedirs(args.logdir, exist_ok=True)
+    exit()
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(name)-13s %(levelname)-8s %(message)s',
                         datefmt='%m-%d %H:%M',
                         filename='{}/{}_{}_{}_{}_{}-{}-{}:{}.log'.format(
-                            LOG_PATH,
+                            args.logdir,
                             args.mode, args.dataset, args.sampling, args.model,
                             ctime.tm_mon, ctime.tm_mday, ctime.tm_hour, ctime.tm_min
                         ),
@@ -235,5 +239,4 @@ def main():
 
 if __name__ == "__main__":
     os.makedirs(MODEL_PATH, exist_ok=True)
-    os.makedirs(LOG_PATH, exist_ok=True)
     main()
