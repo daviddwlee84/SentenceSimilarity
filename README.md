@@ -2,6 +2,14 @@
 
 ## Getting Started
 
+Clone this project (make sure `git-lfs` is installed)
+
+```sh
+git lfs clone --depth=1 https://github.com/daviddwlee84/Enhanced-RCNN.git
+```
+
+Usage
+
 ```sh
 # Data preprocessing
 ## Ant

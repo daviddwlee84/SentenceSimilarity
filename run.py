@@ -168,7 +168,6 @@ def main():
     # Logging
     ctime = time.localtime()
     os.makedirs(args.logdir, exist_ok=True)
-    exit()
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(name)-13s %(levelname)-8s %(message)s',
                         datefmt='%m-%d %H:%M',
