@@ -20,7 +20,7 @@ def main():
     mode2 = sys.argv[2] # train or test
     if mode2 == "train":
         # if train then use competition training data
-        input_dir = "data/competition_train.csv"
+        input_dir = "raw_data/competition_train.csv"
     else: # mode2 == "test"
         # if test  then input test data manually
         input_dir = sys.argv[3]
