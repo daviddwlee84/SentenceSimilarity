@@ -8,6 +8,13 @@ Clone this project (make sure `git-lfs` is installed)
 git lfs clone --depth=1 https://github.com/daviddwlee84/Enhanced-RCNN.git
 ```
 
+Quick Execute All
+
+```sh
+./all_data_preprocess.sh
+./train_all_data_at_once.sh [model name]
+```
+
 Usage
 
 ```sh
