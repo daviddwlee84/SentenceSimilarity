@@ -7,7 +7,7 @@ from models.functions import *
 
 
 class EnhancedRCNN_Transformer(nn.Module):
-    def __init__(self, embeddings_matrix, max_len, num_class=1, transformer_dim=384, dropout_rate=0.2, linear_size=384, conv_dim=64, freeze_embed=True):
+    def __init__(self, embeddings_matrix, max_len, num_class=1, transformer_dim=384, dropout_rate=0.2, linear_size=384, conv_dim=64, freeze_embed=False):
         super(EnhancedRCNN_Transformer, self).__init__()
 
         self.max_len = max_len

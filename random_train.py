@@ -4,9 +4,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.data as torch_data
 from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import f1_score
 
 from data_prepare import train_test_data_loader, tokenize_and_padding
-from models.functions import contrastive_loss
+from models.functions import contrastive_loss  # deprecated
+from utils import save_model
 
 import logging
 
@@ -64,14 +66,7 @@ def train(args, model, tokenizer, device, optimizer):
         _test_on_dataloader(args, model, device, test_dataset)
         model.train()  # switch the model mode back to train
         if not args.not_save_model:
-            logger.info(f'Saving model on epoch {epoch + 1}')
-            train_embed_txt = '(T)' if args.train_embed else '(F)'
-            if args.dataset != "Quora":  # Chinese dataset
-                torch.save(model.state_dict(),
-                           f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_{epoch + 1}_{args.chinese_embed}{train_embed_txt}_{args.word_segment}.pkl")
-            else:  # English datset
-                torch.save(model.state_dict(),
-                           f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_{epoch + 1}_{train_embed_txt}.pkl")
+            save_model(args, model, epoch)
 
 
 def _test_on_dataloader(args, model, device, test_loader, dataset="Valid"):
@@ -79,6 +74,8 @@ def _test_on_dataloader(args, model, device, test_loader, dataset="Valid"):
     test_loss = 0
     correct = 0
     with torch.no_grad():
+        accumulated_pred = []  # for f1 score
+        accumulated_target = []  # for f1 score
         for input_1, input_2, target in test_loader:
             input_1, input_2, target = input_1.to(
                 device), input_2.to(device), target.to(device)
@@ -97,12 +94,15 @@ def _test_on_dataloader(args, model, device, test_loader, dataset="Valid"):
 
             pred = output.round()
             correct += pred.eq(target.view_as(pred)).sum().item()
+            accumulated_pred.extend(pred.tolist())  # for f1 score
+            accumulated_target.extend(target.tolist())  # for f1 score
 
     test_loss /= len(test_loader.dataset)
 
-    logger.info('{} set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%)'.format(
+    logger.info('{} set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%, F1: {:.2f}%)'.format(
         dataset, test_loss, correct, len(test_loader.dataset),
-        100. * correct / len(test_loader.dataset)))
+        100. * correct / len(test_loader.dataset),
+        f1_score(accumulated_target, accumulated_pred, average='macro')))
 
 
 def test(args, model, tokenizer, device):

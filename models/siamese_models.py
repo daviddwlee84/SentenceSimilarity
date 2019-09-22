@@ -3,9 +3,10 @@ import torch.nn as nn
 
 
 class SiameseModel(nn.Module):
-    def __init__(self, single_model, linear_size, num_class=1):
+    def __init__(self, single_model, similarity_function, linear_size, num_class=1):
         super(SiameseModel, self).__init__()
         self.half_model = single_model
+        self.distance = similarity_function
         self.dense = nn.Sequential(
             nn.Linear(linear_size, num_class),
             nn.Sigmoid()
@@ -14,8 +15,8 @@ class SiameseModel(nn.Module):
     def forward(self, q1, q2):
         sent_embed_1 = self.half_model(q1)
         sent_embed_2 = self.half_model(q2)
-        l1_distance = torch.abs(sent_embed_1 - sent_embed_2)
-        output = self.dense(l1_distance)
+        distance = self.distance(sent_embed_1, sent_embed_2)
+        output = self.dense(distance)
 
         return output
 

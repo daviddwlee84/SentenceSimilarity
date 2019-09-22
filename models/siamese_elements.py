@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 
 class SingleSiameseCNN(nn.Module):
-    def __init__(self, embedding_matrix, max_len, output_size, device, linear_size=128, windows=[3, 4, 5], freeze_embed=True):
+    def __init__(self, embedding_matrix, max_len, output_size, device, linear_size=128, windows=[3, 4, 5], freeze_embed=False):
         super(SingleSiameseCNN, self).__init__()
         self.embedding = nn.Embedding.from_pretrained(
             embedding_matrix, freeze=freeze_embed)
@@ -26,6 +26,8 @@ class SingleSiameseCNN(nn.Module):
             for cnn_filter in self.cnn_filters]
         global_pooled_output = list(map(
             lambda x: torch.max(x, dim=2)[0], output_of_cnns))
+        # equivalent to
+        # global_pooled_output = [F.max_pool1d(x, x.size(2)).squeeze(2) for x in output_of_cnns]
         dense_input = torch.cat(global_pooled_output, dim=1)
         output = self.dense(dense_input)
         return output

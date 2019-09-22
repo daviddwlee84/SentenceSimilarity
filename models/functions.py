@@ -6,6 +6,10 @@ def mean_max(x):
     return torch.mean(x, dim=1), torch.max(x, dim=1)[0]
 
 
+def l1_distance(sent_embed_1, sent_embed_2):
+    return torch.abs(sent_embed_1 - sent_embed_2)
+
+
 def contrastive_loss(output1, output2, label, margin=2.0):
     """ calculate loss for siamese models without output dense layer (deprecated) """
     # Find the pairwise distance or eucledian distance of two output feature vectors

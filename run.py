@@ -12,6 +12,7 @@ from models.rcnn import EnhancedRCNN
 from models.rcnn_transformer import EnhancedRCNN_Transformer
 from models.siamese_models import SiameseModel
 from models.siamese_elements import SingleSiameseCNN
+from models.functions import l1_distance
 from data_prepare import embedding_loader, tokenize_and_padding
 
 MODEL_PATH = "model"
@@ -19,7 +20,7 @@ LOG_PATH = "log"
 
 
 def load_latest_model(args, model_obj):
-    train_embed_txt = '(T)' if args.train_embed else '(F)'  # T: train; F: fix
+    train_embed_txt = '(F)' if args.not_train_embed else '(T)'
     if args.dataset != "Quora":  # Chinese dataset
         possible_model_name = f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_*_{args.chinese_embed}{train_embed_txt}_{args.word_segment}.pkl"
     else:  # English dataset
@@ -29,6 +30,7 @@ def load_latest_model(args, model_obj):
     if len(list_of_models) == 0:
         logging.warning(
             f'No candidate model name "{possible_model_name}" found')
+        exit(1)
 
     latest_checkpoint = max(list_of_models, key=os.path.getctime)
     logging.info(f"Loading the latest model: {latest_checkpoint}")
@@ -99,7 +101,7 @@ def print_settings(args):
     if args.dataset != "Quora":  # All the Chinese dataset
         logging.info(f'\t Word Segment\t: {args.word_segment}')
         logging.info(f'\t Embedding\t: {args.chinese_embed}')
-    logging.info(f'\t Train Embedding: {args.train_embed}')
+    logging.info(f'\t Train Embedding: {not args.not_train_embed}')
     logging.info(f'\tMode\t\t: {args.mode}')
     logging.info(f'\tSampling Mode\t: {args.sampling}')
     if args.sampling == "balance":
@@ -134,7 +136,7 @@ def main():
     parser.add_argument('--chinese-embed', type=str, default='cw2vec', metavar='embed',
                         choices=['cw2vec', 'glyce'],
                         help='chinese embedding (default: cw2vec)')
-    parser.add_argument('--train-embed', action='store_true', default=False,
+    parser.add_argument('--not-train-embed', action='store_true', default=False,
                         help='whether to freeze the embedding parameters')
     parser.add_argument('--batch-size', type=int, default=256, metavar='N',
                         help='input batch size for training (default: 256)')
@@ -170,7 +172,7 @@ def main():
     # Logging
     ctime = time.localtime()
     os.makedirs(args.logdir, exist_ok=True)
-    train_embed_txt = '(T)' if args.train_embed else '(F)'
+    train_embed_txt = '(F)' if args.not_train_embed else '(T)'
     if args.dataset != "Quora":  # Chinese dataset
         logfilename = '{}_{}_{}_{}_{}{}_{}_{}-{}_{}-{}'.format(
             args.mode, args.dataset, args.sampling, args.model, args.chinese_embed, train_embed_txt, args.word_segment,
@@ -196,8 +198,15 @@ def main():
 
     # PyTorch device configure (cuda/GPU or CPU)
     use_cuda = not args.no_cuda and torch.cuda.is_available()
+    if use_cuda:
+        available_gpu = get_available_gpu(
+            num_gpu=1, allow_gpus=args.allow_gpus)[0]
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(available_gpu)
     device = torch.device("cuda" if use_cuda else "cpu")
     logging.info(f"Use device: {device}")
+    if use_cuda:
+        logging.info("\tDevices: {}, Current Device: #{}-{}".format(
+            torch.cuda.device_count(), torch.cuda.current_device(), torch.cuda.get_device_name()))
 
     torch.manual_seed(args.seed)
 
@@ -215,16 +224,18 @@ def main():
     logging.info("Building model...")
     if args.model == "ERCNN":
         model = EnhancedRCNN(
-            embeddings_matrix, args.max_len, freeze_embed=not args.train_embed).to(device)
+            embeddings_matrix, args.max_len, freeze_embed=args.not_train_embed).to(device)
     elif args.model == "Transformer":
         model = EnhancedRCNN_Transformer(
-            embeddings_matrix, args.max_len, freeze_embed=not args.train_embed).to(device)
+            embeddings_matrix, args.max_len, freeze_embed=args.not_train_embed).to(device)
     elif args.model[:7] == "Siamese":
         output_size = 100
+        similarity_function = l1_distance
         if args.model[7:] == "CNN":
             single_model = SingleSiameseCNN(
-                embeddings_matrix, args.max_len, output_size, device, freeze_embed=not args.train_embed).to(device)
-        model = SiameseModel(single_model, output_size).to(device)
+                embeddings_matrix, args.max_len, output_size, device, freeze_embed=args.not_train_embed).to(device)
+        model = SiameseModel(single_model, similarity_function,
+                             output_size).to(device)
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(
         args.beta1, args.beta2), eps=args.epsilon)
     logging.info(f'Model Complexity (Parameters):')
