@@ -19,10 +19,11 @@ LOG_PATH = "log"
 
 
 def load_latest_model(args, model_obj):
+    train_embed_txt = '(T)' if args.train_embed else '(F)'  # T: train; F: fix
     if args.dataset != "Quora":  # Chinese dataset
-        possible_model_name = f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_*_{args.chinese_embed}_{args.word_segment}.pkl"
+        possible_model_name = f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_*_{args.chinese_embed}{train_embed_txt}_{args.word_segment}.pkl"
     else:  # English dataset
-        possible_model_name = f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_*.pkl"
+        possible_model_name = f"{args.model_path}/{args.dataset}_{args.sampling}_{args.model}_epoch_*_{train_embed_txt}.pkl"
 
     list_of_models = glob.glob(possible_model_name)
     if len(list_of_models) == 0:
@@ -169,14 +170,15 @@ def main():
     # Logging
     ctime = time.localtime()
     os.makedirs(args.logdir, exist_ok=True)
+    train_embed_txt = '(T)' if args.train_embed else '(F)'
     if args.dataset != "Quora":  # Chinese dataset
-        logfilename = '{}_{}_{}_{}_{}_{}_{}-{}_{}-{}'.format(
-            args.mode, args.dataset, args.sampling, args.model, args.chinese_embed, args.word_segment,
+        logfilename = '{}_{}_{}_{}_{}{}_{}_{}-{}_{}-{}'.format(
+            args.mode, args.dataset, args.sampling, args.model, args.chinese_embed, train_embed_txt, args.word_segment,
             ctime.tm_mon, ctime.tm_mday, ctime.tm_hour, ctime.tm_min
         )
     else:  # English dataset
-        logfilename = '{}_{}_{}_{}_{}-{}_{}-{}'.format(
-            args.mode, args.dataset, args.sampling, args.model,
+        logfilename = '{}_{}_{}_{}_glove{}_{}-{}_{}-{}'.format(
+            args.mode, args.dataset, args.sampling, args.model, train_embed_txt,
             ctime.tm_mon, ctime.tm_mday, ctime.tm_hour, ctime.tm_min
         )
     setproctitle('WWW--' + logfilename)  # set process name
