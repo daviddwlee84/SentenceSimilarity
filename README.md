@@ -52,6 +52,9 @@ Model
 * `ERCNN`
 * `Transformer`
   * ERCNN + replace the BiRNN with Transformer
+* Baseline
+  * Siamese Series
+    * `SiameseCNN`
 
 Sampling
 
@@ -237,6 +240,10 @@ Data
 
 * More evaluation matrics: recall & f1-score
 * Continue training?!
+* Potential multi-class classification
+  * num_class input
+  * sigmoid => softmax
+  * (but how about siamese model??)
 
 ## Notes about Virtualenv
 
@@ -296,10 +303,10 @@ Add alias in bashrc
 
 ### Related Project
 
-* [brightmart/nlu_sim](https://github.com/brightmart/nlu_sim) - all kinds of baseline models for sentence similarity
+* [**brightmart/nlu_sim**](https://github.com/brightmart/nlu_sim) - all kinds of baseline models for sentence similarity
   * Imbalance Classification for Skew Data
   * Models including ESIM
-* [ESIM](https://github.com/HsiaoYetGun/ESIM)
+* [**ESIM**](https://github.com/HsiaoYetGun/ESIM)
 
 ### Article
 
@@ -316,3 +323,17 @@ Add alias in bashrc
   * [Capsule Networks: The New Deep Learning Network](https://towardsdatascience.com/capsule-networks-the-new-deep-learning-network-bd917e6818e8)
 * [cw2vec](http://www.statnlp.org/wp-content/uploads/papers/2018/cw2vec/cw2vec.pdf)
   * [github](https://github.com/bamtercelboo/cw2vec)
+
+### Baseline
+
+#### Siamese Models
+
+> Siamese-CNN, Siamese-RNN, Siamese-LSTM, Siamese-RCNN, Siamese-Attention-RCNN
+
+* [**ShawnyXiao/TextClassification-Keras**](https://github.com/ShawnyXiao/TextClassification-Keras): Text classification models implemented in Keras, including: FastText, TextCNN, TextRNN, TextBiRNN, TextAttBiRNN, HAN, RCNN, RCNNVariant, etc.
+* [Siamese Networks: Algorithm, Applications And PyTorch Implementation](https://becominghuman.ai/siamese-networks-algorithm-applications-and-pytorch-implementation-4ffa3304c18)
+
+Contrastive Loss
+
+* [pytorch-siamese/contrastive.py at master · delijati/pytorch-siamese](https://github.com/delijati/pytorch-siamese/blob/master/contrastive.py)
+* [**Siamese Neural Network ( With Pytorch Code Example ) - Innovation Incubator Group of Companies**](https://innovationincubator.com/siamese-neural-network-with-pytorch-code-example/)

@@ -11,6 +11,8 @@ import torch.optim as optim
 
 from models.rcnn import EnhancedRCNN
 from models.rcnn_transformer import EnhancedRCNN_Transformer
+from models.siamese_models import SiameseModel
+from models.siamese_elements import SingleSiameseCNN
 from data_prepare import embedding_loader, tokenize_and_padding
 
 MODEL_PATH = "model"
@@ -124,7 +126,7 @@ def main():
     parser.add_argument('--generate-test', action='store_true', default=False,
                         help='use generated negative samples when testing (used in balance sampling)')
     parser.add_argument('--model', type=str, default='ERCNN', metavar='model',
-                        choices=['ERCNN', 'Transformer'],
+                        choices=['ERCNN', 'Transformer', 'SiameseCNN'],
                         help='model to use [ERCNN/Transformer] (default: ERCNN)')
     parser.add_argument('--word-segment', type=str, default='char', metavar='WS',
                         choices=['word', 'char'],
@@ -168,14 +170,22 @@ def main():
     # Logging
     ctime = time.localtime()
     os.makedirs(args.logdir, exist_ok=True)
+    if args.dataset != "Quora":  # Chinese dataset
+        logfilename = '{}/{}_{}_{}_{}_{}-{}_{}-{}.log'.format(
+            args.logdir,
+            args.mode, args.dataset, args.sampling, args.model,
+            ctime.tm_mon, ctime.tm_mday, ctime.tm_hour, ctime.tm_min
+        )
+    else:
+        logfilename = '{}/{}_{}_{}_{}_{}_{}_{}-{}_{}-{}.log'.format(
+            args.logdir,
+            args.mode, args.dataset, args.sampling, args.model, args.chinese_embed, args.word_segment,
+            ctime.tm_mon, ctime.tm_mday, ctime.tm_hour, ctime.tm_min
+        )
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(name)-13s %(levelname)-8s %(message)s',
                         datefmt='%m-%d %H:%M',
-                        filename='{}/{}_{}_{}_{}_{}-{}-{}:{}.log'.format(
-                            args.logdir,
-                            args.mode, args.dataset, args.sampling, args.model,
-                            ctime.tm_mon, ctime.tm_mday, ctime.tm_hour, ctime.tm_min
-                        ),
+                        filename=logfilename,
                         filemode='w')
     console = logging.StreamHandler()
     console.setLevel(logging.INFO)
@@ -209,6 +219,11 @@ def main():
     elif args.model == "Transformer":
         model = EnhancedRCNN_Transformer(
             embeddings_matrix, args.max_len, freeze_embed=not args.train_embed).to(device)
+    elif args.model[:7] == "Siamese":
+        if args.model[7:] == "CNN":
+            single_model = SingleSiameseCNN
+        model = SiameseModel(
+            embeddings_matrix, args.max_len, single_model, freeze_embed=not args.train_embed).to(device)
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(
         args.beta1, args.beta2), eps=args.epsilon)
     logging.info(f'Model Complexity (Parameters):')

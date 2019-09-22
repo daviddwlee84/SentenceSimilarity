@@ -6,6 +6,7 @@ import torch.utils.data as torch_data
 from sklearn.model_selection import StratifiedKFold
 
 from data_prepare import train_test_data_loader, tokenize_and_padding, BalanceDataHelper
+from models.functions import contrastive_loss
 
 import logging
 
@@ -40,8 +41,12 @@ def train(args, model, tokenizer, device, optimizer):
                 device), X_tensor_train_2.to(device), target.to(device)
 
             optimizer.zero_grad()
-            output = model(input_1, input_2)
-            loss = F.binary_cross_entropy(output, target.view_as(output))
+            if args.model[:7] == "Siamese":
+                output1, output2 = model(input_1, input_2)
+                loss = contrastive_loss(output1, output2, target)
+            else:
+                output = model(input_1, input_2)
+                loss = F.binary_cross_entropy(output, target.view_as(output))
             loss.backward()
             optimizer.step()
             if batch_idx % args.log_interval == 0:
@@ -75,10 +80,18 @@ def _test_on_dataloader(args, model, tokenizer, device, test_data_helper, datase
             input_1, input_2, target = X_tensor_test_1.to(
                 device), X_tensor_test_2.to(device), target.to(device)
 
-            output = model(input_1, input_2)
-            # sum up batch loss
-            test_loss += F.binary_cross_entropy(output,
-                                                target.view_as(output), reduction='sum').item()
+            if args.model[:7] == "Siamese":
+                output1, output2 = model(input_1, input_2)
+                # Oneshot Learning
+                output = F.pairwise_distance(
+                    output1, output2)  # euclidean distance
+                test_loss += contrastive_loss(output1, output2, target).item()
+            else:
+                output = model(input_1, input_2)
+                # sum up batch loss
+                test_loss += F.binary_cross_entropy(
+                    output, target.view_as(output), reduction='sum').item()
+
             pred = output.round()
             correct += pred.eq(target.view_as(pred)).sum().item()
 
