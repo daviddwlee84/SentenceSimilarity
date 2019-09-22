@@ -30,7 +30,7 @@ def data_loader(mode="word", dataset="Ant"):
         Y = data["label"]
 
     elif dataset == "PiPiDai":
-        data = pd.read_csv(f"data/PiPiDai_{mode}s_train.csv")
+        data = pd.read_csv(f"data/PiPiDai_{mode}s_train.csv", index_col=0)
 
         X1 = data.q1
         X2 = data.q2
