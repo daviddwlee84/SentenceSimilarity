@@ -28,11 +28,20 @@ python3 pipidai_preprocess.py
 
 # Train & Evaluate
 ## Chinese
-python3 run.py --dataset [Ant/CCSK/PiPiDai] --model [ERCNN/Transformer] --word-segment [word/char]
+python3 run.py --dataset [Ant/CCSK/PiPiDai] --model [model name] --word-segment [word/char]
 # train all the model at once use ./train_all_data_at_once.sh
 ## English
-python3 run.py --dataset Quora --model [ERCNN/Transformer]
+python3 run.py --dataset Quora --model [model name]
 ```
+
+Model
+
+* `ERCNN` (default)
+* `Transformer`
+  * ERCNN + replace the BiRNN with Transformer
+* Baseline
+  * Siamese Series
+    * `SiameseCNN`
 
 Dataset
 
@@ -53,15 +62,6 @@ Mode
 * `both` (include train and test)
 * `predict`
   * will load the latest model with the same settings
-
-Model
-
-* `ERCNN`
-* `Transformer`
-  * ERCNN + replace the BiRNN with Transformer
-* Baseline
-  * Siamese Series
-    * `SiameseCNN`
 
 Sampling
 
@@ -344,3 +344,10 @@ Contrastive Loss
 
 * [pytorch-siamese/contrastive.py at master · delijati/pytorch-siamese](https://github.com/delijati/pytorch-siamese/blob/master/contrastive.py)
 * [**Siamese Neural Network ( With Pytorch Code Example ) - Innovation Incubator Group of Companies**](https://innovationincubator.com/siamese-neural-network-with-pytorch-code-example/)
+* [siamese-network/ContrastiveLoss.py at master · melody-rain/siamese-network](https://github.com/melody-rain/siamese-network/blob/master/models/ContrastiveLoss.py)
+
+## Trouble Shooting
+
+RuntimeError: Input type (torch.cuda.FloatTensor) and weight type (torch.FloatTensor) should be the same
+
+> somehow the `nn.Module` in a list can't be auto connect `to(device)`

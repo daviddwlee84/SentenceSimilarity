@@ -220,7 +220,7 @@ def main():
     elif args.model[:7] == "Siamese":
         if args.model[7:] == "CNN":
             single_model = SingleSiameseCNN(
-                embeddings_matrix, args.max_len, freeze_embed=not args.train_embed).to(device)
+                embeddings_matrix, args.max_len, device, freeze_embed=not args.train_embed).to(device)
         model = SiameseModel(single_model).to(device)
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(
         args.beta1, args.beta2), eps=args.epsilon)
@@ -232,8 +232,8 @@ def main():
     if args.sampling == "random":
         from random_train import train, test
     elif args.sampling == "balance":
-        from balance_train import train, test
-        # from random_train import test # use unbalancd data (raw data) to test
+        from balance_train import train
+        from random_train import test  # use unbalancd data (raw data) to test
 
     if args.mode == "train" or args.mode == "both":
         logging.info(f"Training using {args.sampling} sampling mode...")

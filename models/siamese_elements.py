@@ -4,15 +4,16 @@ import torch.nn.functional as F
 
 
 class SingleSiameseCNN(nn.Module):
-    def __init__(self, embedding_matrix, max_len, output_size=100, linear_size=128, windows=[3, 4, 5], freeze_embed=True):
+    def __init__(self, embedding_matrix, max_len, device, output_size=100, linear_size=128, windows=[3, 4, 5], freeze_embed=True):
         super(SingleSiameseCNN, self).__init__()
         self.embedding = nn.Embedding.from_pretrained(
             embedding_matrix, freeze=freeze_embed)
+        # somehow the model in list can't be auto connect `to(device)`
         self.cnn_filters = [
             nn.Sequential(
                 nn.Conv1d(max_len, linear_size, kernel_wide),
                 nn.ReLU()
-            ) for kernel_wide in windows]
+            ).to(device) for kernel_wide in windows]
         self.dense = nn.Sequential(
             nn.Linear(linear_size*len(windows), output_size),
             nn.Sigmoid()
