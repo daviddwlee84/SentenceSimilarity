@@ -2,7 +2,7 @@
 # ./test_all_data_at_once Model
 
 MODEL=${1:-'ERCNN'}
-LOGDIR=log/All_`date +"%m_%d-%H_%M_%S"`
+LOGDIR=log/${MODEL}_All_`date +"%m_%d-%H_%M_%S"`
 
 # Ant
 python3 run.py --dataset Ant --word-segment char --model $MODEL --logdir $LOGDIR &
