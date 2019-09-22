@@ -4,9 +4,10 @@ import torch.nn.functional as F
 
 
 class SingleSiameseCNN(nn.Module):
-    def __init__(self, embedding_layer, max_len, output_size, linear_size=128, windows=[3, 4, 5]):
+    def __init__(self, embedding_matrix, max_len, output_size=100, linear_size=128, windows=[3, 4, 5], freeze_embed=True):
         super(SingleSiameseCNN, self).__init__()
-        self.embedding = embedding_layer
+        self.embedding = nn.Embedding.from_pretrained(
+            embedding_matrix, freeze=freeze_embed)
         self.cnn_filters = [
             nn.Sequential(
                 nn.Conv1d(max_len, linear_size, kernel_wide),

@@ -219,9 +219,9 @@ def main():
             embeddings_matrix, args.max_len, freeze_embed=not args.train_embed).to(device)
     elif args.model[:7] == "Siamese":
         if args.model[7:] == "CNN":
-            single_model = SingleSiameseCNN
-        model = SiameseModel(
-            embeddings_matrix, args.max_len, single_model, freeze_embed=not args.train_embed).to(device)
+            single_model = SingleSiameseCNN(
+                embeddings_matrix, args.max_len, freeze_embed=not args.train_embed).to(device)
+        model = SiameseModel(single_model).to(device)
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(
         args.beta1, args.beta2), eps=args.epsilon)
     logging.info(f'Model Complexity (Parameters):')
