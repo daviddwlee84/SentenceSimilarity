@@ -1,4 +1,4 @@
-# define custom module (layer)
+# shared element for rcnn
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
