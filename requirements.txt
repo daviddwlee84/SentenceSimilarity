@@ -7,3 +7,4 @@ tensorflow
 keras
 gensim
 jieba
+setproctitle

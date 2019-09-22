@@ -18,3 +18,5 @@ nohup python3 run.py --dataset PiPiDai --word-segment word --model $MODEL --logd
 
 echo "Running scripts"
 ps aux | grep run.py | grep $MODEL
+echo "To stop all processes execute:"
+echo "kill -9" `ps x | grep run.py | grep -v grep | awk '{print $1}' | xargs`

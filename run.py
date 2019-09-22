@@ -3,8 +3,7 @@ import os
 import glob
 import logging
 import time
-
-# from sklearn.metrics import f1_score, recall_score, precision_score  # TODO
+from setproctitle import setproctitle
 
 import torch
 import torch.optim as optim
@@ -171,21 +170,20 @@ def main():
     ctime = time.localtime()
     os.makedirs(args.logdir, exist_ok=True)
     if args.dataset != "Quora":  # Chinese dataset
-        logfilename = '{}/{}_{}_{}_{}_{}-{}_{}-{}.log'.format(
-            args.logdir,
-            args.mode, args.dataset, args.sampling, args.model,
-            ctime.tm_mon, ctime.tm_mday, ctime.tm_hour, ctime.tm_min
-        )
-    else:
-        logfilename = '{}/{}_{}_{}_{}_{}_{}_{}-{}_{}-{}.log'.format(
-            args.logdir,
+        logfilename = '{}_{}_{}_{}_{}_{}_{}-{}_{}-{}.log'.format(
             args.mode, args.dataset, args.sampling, args.model, args.chinese_embed, args.word_segment,
             ctime.tm_mon, ctime.tm_mday, ctime.tm_hour, ctime.tm_min
         )
+    else:  # English dataset
+        logfilename = '{}_{}_{}_{}_{}-{}_{}-{}.log'.format(
+            args.mode, args.dataset, args.sampling, args.model,
+            ctime.tm_mon, ctime.tm_mday, ctime.tm_hour, ctime.tm_min
+        )
+    setproctitle('WWW--' + logfilename)
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(name)-13s %(levelname)-8s %(message)s',
                         datefmt='%m-%d %H:%M',
-                        filename=logfilename,
+                        filename=f'{args.logdir}/{logfilename}',
                         filemode='w')
     console = logging.StreamHandler()
     console.setLevel(logging.INFO)
