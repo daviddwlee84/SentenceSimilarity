@@ -7,7 +7,7 @@ def mean_max(x):
 
 
 def contrastive_loss(output1, output2, label, margin=2.0):
-    """ calculate loss for siamese models """
+    """ calculate loss for siamese models without output dense layer (deprecated) """
     # Find the pairwise distance or eucledian distance of two output feature vectors
     euclidean_distance = F.pairwise_distance(output1, output2)
     # perform contrastive loss calculation with the distance

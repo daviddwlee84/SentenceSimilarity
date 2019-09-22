@@ -110,6 +110,10 @@ def embedding_loader(embedding_folder="word2vec", embed="cw2vec", mode="word", d
                       for k, v in embed_model.wv.vocab.items()]
 
         for word, i in word_index.items():
+            if dataset == "PiPiDai":
+                # KeyedVectors.load_word2vec_format will lower all the words
+                # thus PiPiDai index won't be found in embed_model
+                word = word.upper()
             if word in embed_model:
                 embedding_vector = embed_model[word]
             else:

@@ -170,7 +170,7 @@ def main():
     ctime = time.localtime()
     os.makedirs(args.logdir, exist_ok=True)
     if args.dataset != "Quora":  # Chinese dataset
-        logfilename = '{}_{}_{}_{}_{}_{}_{}-{}_{}-{}.log'.format(
+        logfilename = '{}_{}_{}_{}_{}_{}_{}-{}_{}-{}'.format(
             args.mode, args.dataset, args.sampling, args.model, args.chinese_embed, args.word_segment,
             ctime.tm_mon, ctime.tm_mday, ctime.tm_hour, ctime.tm_min
         )

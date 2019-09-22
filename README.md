@@ -338,6 +338,7 @@ Add alias in bashrc
 > Siamese-CNN, Siamese-RNN, Siamese-LSTM, Siamese-RCNN, Siamese-Attention-RCNN
 
 * [**ShawnyXiao/TextClassification-Keras**](https://github.com/ShawnyXiao/TextClassification-Keras): Text classification models implemented in Keras, including: FastText, TextCNN, TextRNN, TextBiRNN, TextAttBiRNN, HAN, RCNN, RCNNVariant, etc.
+* [akshaysharma096/Siamese-Networks: Few Shot Learning by Siamese Networks, using Keras.](https://github.com/akshaysharma096/Siamese-Networks)
 * [Siamese Networks: Algorithm, Applications And PyTorch Implementation](https://becominghuman.ai/siamese-networks-algorithm-applications-and-pytorch-implementation-4ffa3304c18)
 
 Contrastive Loss
