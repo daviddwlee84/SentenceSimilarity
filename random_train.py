@@ -46,7 +46,7 @@ def train(args, model, tokenizer, device, optimizer):
                 device), input_2.to(device), target.to(device)
             optimizer.zero_grad()
 
-            if args.model[:7] == "Siamese":
+            if args.model[:7] == "Siamese" and False:  # currently disable this
                 output1, output2 = model(input_1, input_2)
                 loss = contrastive_loss(output1, output2, target)
             else:
@@ -82,7 +82,7 @@ def _test_on_dataloader(args, model, device, test_loader, dataset="Valid"):
             input_1, input_2, target = input_1.to(
                 device), input_2.to(device), target.to(device)
 
-            if args.model[:7] == "Siamese":
+            if args.model[:7] == "Siamese" and False:  # currently disable this
                 output1, output2 = model(input_1, input_2)
                 # Oneshot Learning
                 output = F.pairwise_distance(

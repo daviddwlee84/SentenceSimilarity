@@ -175,15 +175,15 @@ def main():
             ctime.tm_mon, ctime.tm_mday, ctime.tm_hour, ctime.tm_min
         )
     else:  # English dataset
-        logfilename = '{}_{}_{}_{}_{}-{}_{}-{}.log'.format(
+        logfilename = '{}_{}_{}_{}_{}-{}_{}-{}'.format(
             args.mode, args.dataset, args.sampling, args.model,
             ctime.tm_mon, ctime.tm_mday, ctime.tm_hour, ctime.tm_min
         )
-    setproctitle('WWW--' + logfilename)
+    setproctitle('WWW--' + logfilename)  # set process name
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(name)-13s %(levelname)-8s %(message)s',
                         datefmt='%m-%d %H:%M',
-                        filename=f'{args.logdir}/{logfilename}',
+                        filename=f'{args.logdir}/{logfilename}.log',
                         filemode='w')
     console = logging.StreamHandler()
     console.setLevel(logging.INFO)
@@ -218,10 +218,11 @@ def main():
         model = EnhancedRCNN_Transformer(
             embeddings_matrix, args.max_len, freeze_embed=not args.train_embed).to(device)
     elif args.model[:7] == "Siamese":
+        output_size = 100
         if args.model[7:] == "CNN":
             single_model = SingleSiameseCNN(
-                embeddings_matrix, args.max_len, device, freeze_embed=not args.train_embed).to(device)
-        model = SiameseModel(single_model).to(device)
+                embeddings_matrix, args.max_len, output_size, device, freeze_embed=not args.train_embed).to(device)
+        model = SiameseModel(single_model, output_size).to(device)
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(
         args.beta1, args.beta2), eps=args.epsilon)
     logging.info(f'Model Complexity (Parameters):')
@@ -239,7 +240,7 @@ def main():
         logging.info(f"Training using {args.sampling} sampling mode...")
         train(args, model, tokenizer, device, optimizer)
     if args.mode == "test" or args.mode == "both":
-        logging.info(f"Testing on {args.test_split*10}% data...")
+        logging.info(f"Testing on {args.test_split*100}% data...")
         if args.mode != "both":
             load_latest_model(args, model)
         test(args, model, tokenizer, device)
