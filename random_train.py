@@ -104,10 +104,10 @@ def _test_on_dataloader(args, model, device, test_loader, dataset="Valid", final
         100. * correct / len(test_loader.dataset),
         100. * f1_score(accumulated_target, accumulated_pred, average='macro')))
     if final:
-        logger.info('Confusion Matrix:\n', confusion_matrix(
-            accumulated_target, accumulated_pred))
-        logger.info('Classification Report:\n', classification_report(
-            accumulated_target, accumulated_pred))
+        logger.info('Confusion Matrix:\n{}'.format(str(confusion_matrix(
+            accumulated_target, accumulated_pred))))
+        logger.info('Classification Report:\n{}'.format(classification_report(
+            accumulated_target, accumulated_pred)))
 
 
 def test(args, model, tokenizer, device):

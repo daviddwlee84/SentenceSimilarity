@@ -38,6 +38,14 @@ def load_latest_model(args, model_obj):
     model_obj.load_state_dict(torch.load(latest_checkpoint))
 
 
+def load_model(args, model_obj):
+    if args.load_model:
+        logging.info(f"Loading the assigned model: {args.load_model}")
+        model_obj.load_state_dict(torch.load(args.load_model))
+    else:
+        load_latest_model(args, model_obj)
+
+
 def predict(args, model, tokenizer, device):
     model.eval()
 
@@ -121,9 +129,10 @@ def main():
     parser.add_argument('--mode', type=str, default='both', metavar='mode',
                         choices=['train', 'test', 'both', 'predict'],
                         help='script mode [train/test/both/predict] (default: both)')
-    parser.add_argument('--sampling', type=str, default='balance', metavar='mode',
+    parser.add_argument('--sampling', type=str, default='random', metavar='mode',
+                        # random means use original data
                         choices=['random', 'balance'],
-                        help='sampling mode during training (default: balance)')
+                        help='sampling mode during training (default: random)')
     parser.add_argument('--generate-train', action='store_true', default=False,
                         help='use generated negative samples when training (used in balance sampling)')
     parser.add_argument('--generate-test', action='store_true', default=False,
@@ -167,6 +176,8 @@ def main():
                         help='how many batches to test during training')
     parser.add_argument('--not-save-model', action='store_true', default=False,
                         help='for not saving the current model')
+    parser.add_argument('--load-model', type=str, default='', metavar='name',
+                        help='load the specific model checkpoint file')
 
     args = parser.parse_args()
 
@@ -252,15 +263,18 @@ def main():
 
     if args.mode == "train" or args.mode == "both":
         logging.info(f"Training using {args.sampling} sampling mode...")
+        if args.load_model:
+            logging.info(f"Loading pretrained model to continue training...")
+            load_model(args, model)
         train(args, model, tokenizer, device, optimizer)
     if args.mode == "test" or args.mode == "both":
         logging.info(f"Testing on {args.test_split*100}% data...")
         if args.mode != "both":
-            load_latest_model(args, model)
+            load_model(args, model)
         test(args, model, tokenizer, device)
     if args.mode == "predict":
         logging.info("Predicting manually...")
-        load_latest_model(args, model)
+        load_model(args, model)
         predict(args, model, tokenizer, device)
 
 
