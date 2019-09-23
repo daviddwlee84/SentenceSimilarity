@@ -4,9 +4,54 @@
 
 * 10 fold cross-validation
 * 7:3 train:test
-* training using balance data, test using original data
+* training and testing use original data
 
 > Valid Data: the performance of cross-validation on the last epoch
+
+| Model      | Complexity | Dataset | Embedding | Word Seg | Valid Acc | Valid F1 | Test Acc | Test F1 |
+| ---------- | ---------- | ------- | --------- | -------- | --------- | -------- | -------- | ------- |
+| SiameseCNN | 251501     | Ant     | cw2vec    | char     | 81.88%    | 45.17%   | 81.58%   | 45.03%  |
+| SiameseCNN | 1354601    | Ant     | cw2vec    | word     | 83.35%    | 53.69%   | 81.45%   | 45.96%  |
+| SiameseCNN | 185701     | CCSK    | cw2vec    | char     | 84.28%    | 84.25%   | 75.07%   | 74.96%  |
+| SiameseCNN | 617301     | CCSK    | cw2vec    | word     | 87.78%    | 87.78%   | 77.43%   | 77.38%  |
+| SiameseCNN | 717501     | PiPiDai | PiPiDai   | char     | 73.30%    | 73.18%   | 68.93%   | 68.81%  |
+| SiameseCNN | 3409701    | PiPiDai | PiPiDai   | word     | 84.17%    | 84.09%   | 74.68%   | 74.55%  |
+
+| Model      | Complexity | Dataset | Embedding | Word Seg | Valid Acc | Valid F1 | Test Acc | Test F1 |
+| ---------- | ---------- | ------- | --------- | -------- | --------- | -------- | -------- | ------- |
+| SiameseRNN | 288365     | Ant     | cw2vec    | char     | 81.85%    | 45.01%   | 81.57%   | 44.93%  |
+| SiameseRNN | 1391465    | Ant     | cw2vec    | word     | 81.85%    | 45.01%   | 81.57%   | 44.93%  |
+| SiameseRNN | 222565     | CCSK    | cw2vec    | char     | 64.98%    | 64.96%   | 63.15%   | 63.13%  |
+| SiameseRNN | 654165     | CCSK    | cw2vec    | word     | 70.18%    | 70.17%   | 66.23%   | 66.19%  |
+| SiameseRNN | 779965     | PiPiDai | PiPiDai   | char     | 69.99%    | 69.87%   | 68.10%   | 68.00%  |
+| SiameseRNN | 3472165    | PiPiDai | PiPiDai   | word     | 73.36%    | 73.21%   | 70.76%   | 70.64%  |
+
+| Model       | Complexity | Dataset | Embedding | Word Seg | Valid Acc | Valid F1 | Test Acc | Test F1 |
+| ----------- | ---------- | ------- | --------- | -------- | --------- | -------- | -------- | ------- |
+| SiameseLSTM | 475757     | Ant     | cw2vec    | char     | 81.85%    | 45.01%   | 81.57%   | 44.93%  |
+| SiameseLSTM | 1578857    | Ant     | cw2vec    | word     | 81.85%    | 45.01%   | 81.57%   | 44.93%  |
+| SiameseLSTM | 409957     | CCSK    | cw2vec    | char     | 64.49%    | 64.42%   | 62.98%   | 62.92%  |
+| SiameseLSTM | 841557     | CCSK    | cw2vec    | word     | 69.45%    | 69.44%   | 65.71%   | 65.70%  |
+| SiameseLSTM | 1044157    | PiPiDai | PiPiDai   | char     | 67.58%    | 67.46%   | 66.51%   | 66.40%  |
+| SiameseLSTM | 3736357    | PiPiDai | PiPiDai   | word     | 70.90%    | 70.86%   | 68.56%   | 68.53%  |
+
+| Model | Complexity | Dataset | Embedding | Word Seg | Valid Acc | Valid F1 | Test Acc | Test F1 |
+| ----- | ---------- | ------- | --------- | -------- | --------- | -------- | -------- | ------- |
+| ERCNN | 2722885    | Ant     | cw2vec    | char     | 81.85%    | 45.01%   | 81.57%   | 44.93%  |
+| ERCNN | 3825985    | Ant     | cw2vec    | word     | 81.85%    | 45.01%   | 81.57%   | 44.93%  |
+| ERCNN | 2657085    | CCSK    | cw2vec    | char     | 70.91%    | 70.90%   | 70.28%   | 70.25%  |
+| ERCNN | 3088685    | CCSK    | cw2vec    | word     | 77.18%    | 77.18%   | 74.76%   | 74.74%  |
+| ERCNN | 3649685    | PiPiDai | PiPiDai   | char     | 82.43%    | 82.25%   | 81.21%   | 81.04%  |
+| ERCNN | 6341885    | PiPiDai | PiPiDai   | word     | 86.16%    | 86.11%   | 83.72%   | 83.67%  |
+
+| Model       | Complexity | Dataset | Embedding | Word Seg | Valid Acc | Valid F1 | Test Acc | Test F1 |
+| ----------- | ---------- | ------- | --------- | -------- | --------- | -------- | -------- | ------- |
+| Transformer | 913493     | Ant     | cw2vec    | char     | 84.02%    | 60.68%   | 82.91%   | 58.95%  |
+| Transformer | 2016593    | Ant     | cw2vec    | word     | 83.66%    | 57.37%   | 82.58%   | 55.36%  |
+| Transformer | 847693     | CCSK    | cw2vec    | char     | 75.51%    | 75.46%   | 74.39%   | 74.34%  |
+| Transformer | 1279293    | CCSK    | cw2vec    | word     | 79.53%    | 79.50%   | 78.06%   | 78.04%  |
+| Transformer | 3473093    | PiPiDai | PiPiDai   | char     | 51.99%    | 34.21%   | 51.72%   | 34.09%  |
+| Transformer | 6165293    | PiPiDai | PiPiDai   | word     | 51.99%    | 34.21%   | 51.72%   | 34.09%  |
 
 ---
 
@@ -26,6 +71,8 @@ Fixed embedding
 | SiameseCNN | 38601/3409701 | PiPiDai | PiPiDai (fixed) | word     | 60.79%    | -        | 62.55%   | -       |
 
 2019/9/22,23 Use Balanced Data
+
+* training using balance data, test using original data
 
 | Model      | Complexity | Dataset | Embedding | Word Seg | Valid Acc | Valid F1 | Test Acc | Test F1 |
 | ---------- | ---------- | ------- | --------- | -------- | --------- | -------- | -------- | ------- |
@@ -55,7 +102,7 @@ Fixed embedding
 | Transformer | 6165293    | PiPiDai | PiPiDai   | word     | 49.77%    | 33.33%   | 51.72%   | 34.09%  |
 
 > 1. Basically Transformer predict everything to be positive in PiPiDai
-> 2. Basically Transformer predict everything to be positive in PiPiDai
+> 2. When the model doesn't work, its loss will stick on 13.815511
 
 ---
 
