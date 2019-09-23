@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.data as torch_data
 from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, confusion_matrix, classification_report
 
 from data_prepare import train_test_data_loader, tokenize_and_padding
 from models.functions import contrastive_loss  # deprecated
@@ -69,7 +69,7 @@ def train(args, model, tokenizer, device, optimizer):
             save_model(args, model, epoch)
 
 
-def _test_on_dataloader(args, model, device, test_loader, dataset="Valid"):
+def _test_on_dataloader(args, model, device, test_loader, dataset="Valid", final=False):
     model.eval()  # Turn on evaluation mode which disables dropout
     test_loss = 0
     correct = 0
@@ -99,10 +99,15 @@ def _test_on_dataloader(args, model, device, test_loader, dataset="Valid"):
 
     test_loss /= len(test_loader.dataset)
 
-    logger.info('{} set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%, F1: {:.2f}%)'.format(
+    logger.info('{} set: Average loss: {:.4f}, Accuracy: {}/{} ({:.2f}%), F1: {:.2f}%'.format(
         dataset, test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset),
-        f1_score(accumulated_target, accumulated_pred, average='macro')))
+        100. * f1_score(accumulated_target, accumulated_pred, average='macro')))
+    if final:
+        print('Confusion Matrix:\n', confusion_matrix(
+            accumulated_target, accumulated_pred))
+        print('Classification Report:\n', classification_report(
+            accumulated_target, accumulated_pred))
 
 
 def test(args, model, tokenizer, device):
@@ -114,4 +119,5 @@ def test(args, model, tokenizer, device):
     test_loader = torch_data.DataLoader(
         input_tensor, batch_size=args.test_batch_size)
     logger.info(f'Test on {len(test_loader.dataset)} amount of data')
-    _test_on_dataloader(args, model, device, test_loader, dataset="Test")
+    _test_on_dataloader(args, model, device, test_loader,
+                        dataset="Test", final=True)

@@ -14,6 +14,7 @@ from models.siamese_models import SiameseModel
 from models.siamese_elements import SingleSiameseCNN
 from models.functions import l1_distance
 from data_prepare import embedding_loader, tokenize_and_padding
+from utils import get_available_gpu
 
 MODEL_PATH = "model"
 LOG_PATH = "log"
@@ -198,10 +199,10 @@ def main():
 
     # PyTorch device configure (cuda/GPU or CPU)
     use_cuda = not args.no_cuda and torch.cuda.is_available()
-    if use_cuda:
-        available_gpu = get_available_gpu(
-            num_gpu=1, allow_gpus=args.allow_gpus)[0]
-        os.environ["CUDA_VISIBLE_DEVICES"] = str(available_gpu)
+    # not sure why this won't work
+    # if use_cuda:
+    #     available_gpu = get_available_gpu(num_gpu=1)[0]
+    #     torch.cuda.set_device(available_gpu)
     device = torch.device("cuda" if use_cuda else "cpu")
     logging.info(f"Use device: {device}")
     if use_cuda:

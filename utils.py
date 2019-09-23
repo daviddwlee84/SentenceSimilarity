@@ -2,6 +2,7 @@ import os
 import time
 import traceback
 import logging
+import torch
 
 logger = logging.getLogger('utils')
 
@@ -39,27 +40,29 @@ def get_available_gpu(num_gpu=1, min_memory=500, try_times=3, delay=2, allow_gpu
             return "Not found gpu info ..."
 
         # Sorting the GPUs form the highest RAM
-        gpu_info.sort(key=lambda info: info[1], reverse=True)  # 内存从高到低排序
-        avilable_gpu = [
+        gpu_info.sort(key=lambda info: info[1], reverse=True)
+        available_gpu = [
             gpu_id for gpu_id, memory in gpu_info if gpu_id in allow_gpus_nums and memory >= min_memory]
 
-        if avilable_gpu:
-            selected_nums = avilable_gpu[:num_gpu]
-        else:
+        if len(available_gpu) == 0:
             print(
-                'No GPU available, attempt ({i}/{try_times})..., will retry in 2.0 seconds ...')
-            time.sleep(2)
+                f'No GPU available, attempt ({i}/{try_times})..., will retry in {delay} seconds ...')
+            time.sleep(delay)
+            delay *= 2
             continue
 
-        if verbose:
-            print('Available GPU List')
-            first_line = [['id', 'utilization.gpu(%)', 'memory.free(MiB)']]
-            matrix = first_line + avilable_gpu
-            s = [[str(e) for e in row] for row in matrix]
-            lens = [max(map(len, col)) for col in zip(*s)]
-            fmt = '\t'.join('{{:{}}}'.format(x) for x in lens)
-            table = [fmt.format(*row) for row in s]
-            print('\n'.join(table))
-            print('Select id #' + ",".join(selected_nums) + ' for you.')
+        selected_nums = available_gpu[:num_gpu]
+
+        # TODO
+        # if verbose:
+        #     print('Available GPU List')
+        #     first_line = [['id', 'utilization.gpu(%)', 'memory.free(MiB)']]
+        #     matrix = first_line + [list(map(lambda x: str(x), available_gpu))]
+        #     s = [[str(e) for e in row] for row in matrix]
+        #     lens = [max(map(len, col)) for col in zip(*s)]
+        #     fmt = '\t'.join('{{:{}}}'.format(x) for x in lens)
+        #     table = [fmt.format(*row) for row in s]
+        #     print('\n'.join(table))
+        #     print('Select GPU id #' + ",".join(map(lambda x: str(x), selected_nums)))
 
     return selected_nums
