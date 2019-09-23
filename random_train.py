@@ -94,8 +94,10 @@ def _test_on_dataloader(args, model, device, test_loader, dataset="Valid", final
 
             pred = output.round()
             correct += pred.eq(target.view_as(pred)).sum().item()
-            accumulated_pred.extend(pred.tolist())  # for f1 score
-            accumulated_target.extend(target.tolist())  # for f1 score
+            accumulated_pred.extend(  # for f1 score
+                pred.view(len(pred)).tolist())
+            accumulated_target.extend(  # for f1 score
+                target.view(len(target)).tolist())
 
     test_loss /= len(test_loader.dataset)
 
