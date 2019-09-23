@@ -11,7 +11,7 @@ import torch.optim as optim
 from models.rcnn import EnhancedRCNN
 from models.rcnn_transformer import EnhancedRCNN_Transformer
 from models.siamese_models import SiameseModel
-from models.siamese_elements import SingleSiameseCNN, SingleSiameseRNN
+from models.siamese_elements import SingleSiameseCNN, SingleSiameseRNN, SingleSiameseLSTM
 from models.functions import l1_distance
 from data_prepare import embedding_loader, tokenize_and_padding
 from utils import get_available_gpu
@@ -139,7 +139,7 @@ def main():
                         help='use generated negative samples when testing (used in balance sampling)')
     parser.add_argument('--model', type=str, default='ERCNN', metavar='model',
                         choices=['ERCNN', 'Transformer',
-                                 'SiameseCNN', 'SiameseRNN'],
+                                 'SiameseCNN', 'SiameseRNN', 'SiameseLSTM'],
                         help='model to use [ERCNN/Transformer] (default: ERCNN)')
     parser.add_argument('--word-segment', type=str, default='char', metavar='WS',
                         choices=['word', 'char'],
@@ -250,6 +250,9 @@ def main():
         elif args.model[7:] == "RNN":
             single_model = SingleSiameseRNN(embeddings_matrix, args.max_len, output_size,
                                             bidirectional=False, freeze_embed=args.not_train_embed).to(device)
+        elif args.model[7:] == "LSTM":
+            single_model = SingleSiameseLSTM(embeddings_matrix, args.max_len, output_size,
+                                             bidirectional=False, freeze_embed=args.not_train_embed).to(device)
         model = SiameseModel(single_model, similarity_function,
                              output_size).to(device)
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(

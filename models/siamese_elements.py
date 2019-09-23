@@ -50,9 +50,34 @@ class SingleSiameseRNN(nn.Module):
         # batch_size, max_len, embed_dim
         sent_embed = self.embedding(sentence)
         # batch_size, max_len, linear_size
-        dense_input, hn = self.rnn(sent_embed)
+        rnn_output, hn = self.rnn(sent_embed)
         # batch_size, linear_size
-        last_hidden_state = dense_input[:, -1, :]
+        last_hidden_state = rnn_output[:, -1, :]
+        # batch_size, output_size
+        output = self.dense(last_hidden_state)
+        return output
+
+
+class SingleSiameseLSTM(nn.Module):
+    def __init__(self, embedding_matrix, max_len, output_size, bidirectional=False, num_layers=2, linear_size=128, freeze_embed=False):
+        super(SingleSiameseLSTM, self).__init__()
+        self.embedding = nn.Embedding.from_pretrained(
+            embedding_matrix, freeze=freeze_embed)
+        self.rnn = nn.LSTM(self.embedding.embedding_dim,
+                           linear_size, num_layers, bidirectional=bidirectional)
+        direction = 1 + int(bidirectional)
+        self.dense = nn.Sequential(
+            nn.Linear(linear_size*direction, output_size),
+            nn.Sigmoid()
+        )
+
+    def forward(self, sentence):
+        # batch_size, max_len, embed_dim
+        sent_embed = self.embedding(sentence)
+        # batch_size, max_len, linear_size
+        lstm_output, (hn, cn) = self.rnn(sent_embed)
+        # batch_size, linear_size
+        last_hidden_state = lstm_output[:, -1, :]
         # batch_size, output_size
         output = self.dense(last_hidden_state)
         return output
