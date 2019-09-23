@@ -297,6 +297,7 @@ Add alias in bashrc
   * Imbalance Classification for Skew Data
   * Models including ESIM
 * [**ESIM**](https://github.com/HsiaoYetGun/ESIM)
+* [**BiMPM**](https://github.com/zhiguowang/BiMPM)
 
 ### Article
 
