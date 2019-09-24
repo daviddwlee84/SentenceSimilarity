@@ -5,7 +5,7 @@ import math
 
 
 class SingleSiameseCNN(nn.Module):
-    def __init__(self, embedding_matrix, max_len, output_size, device, linear_size=128, windows=[3, 4, 5], freeze_embed=False):
+    def __init__(self, embedding_matrix, max_len, output_size, freeze_embed=False):
         super(SingleSiameseCNN, self).__init__()
         self.embedding = nn.Embedding.from_pretrained(
             embedding_matrix, freeze=freeze_embed)
