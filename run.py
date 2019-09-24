@@ -109,14 +109,16 @@ def print_settings(args):
     logging.info(f'\tDataset\t\t: {args.dataset}')
     if args.dataset != "Quora":  # All the Chinese dataset
         logging.info(f'\t Word Segment\t: {args.word_segment}')
-        logging.info(f'\t Embedding\t: {args.chinese_embed}')
+        logging.info(f'\t Embedding\t\t: {args.chinese_embed}')
     logging.info(f'\t Train Embedding: {not args.not_train_embed}')
     logging.info(f'\tMode\t\t: {args.mode}')
-    logging.info(f'\tSampling Mode\t: {args.sampling}')
+    logging.info(f'\tSampling\t: {args.sampling}')
     if args.sampling == "balance":
         logging.info(f'\t Generate train\t: {args.generate_train}')
         logging.info(f'\t Generate test\t: {args.generate_test}')
     logging.info(f'\tUsing Model\t: {args.model}')
+    logging.info(f'\tParameters\t:')
+    logging.info(f'\t Learning Rate\t: {args.lr}')
 
 
 def main():
