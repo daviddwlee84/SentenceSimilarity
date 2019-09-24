@@ -5,17 +5,33 @@
 * 10 fold cross-validation
 * 7:3 train:test
 * training and testing use original data
+* embedding dimension
+  * cw2vec: 100
+  * PiPiDai: 300
 
 > Valid Data: the performance of cross-validation on the last epoch
 
 | Model      | Complexity | Dataset | Embedding | Word Seg | Valid Acc | Valid F1 | Test Acc | Test F1 |
 | ---------- | ---------- | ------- | --------- | -------- | --------- | -------- | -------- | ------- |
-| SiameseCNN | 251501     | Ant     | cw2vec    | char     | 81.88%    | 45.17%   | 81.58%   | 45.03%  |
-| SiameseCNN | 1354601    | Ant     | cw2vec    | word     | 83.35%    | 53.69%   | 81.45%   | 45.96%  |
-| SiameseCNN | 185701     | CCSK    | cw2vec    | char     | 84.28%    | 84.25%   | 75.07%   | 74.96%  |
-| SiameseCNN | 617301     | CCSK    | cw2vec    | word     | 87.78%    | 87.78%   | 77.43%   | 77.38%  |
-| SiameseCNN | 717501     | PiPiDai | PiPiDai   | char     | 73.30%    | 73.18%   | 68.93%   | 68.81%  |
-| SiameseCNN | 3409701    | PiPiDai | PiPiDai   | word     | 84.17%    | 84.09%   | 74.68%   | 74.55%  |
+| SiameseCNN | 4533869    | Ant     | cw2vec    | char     | 81.85%    | 45.01%   | 81.57%   | 44.93%  |
+| SiameseCNN | 5636969    | Ant     | cw2vec    | word     | 81.85%    | 45.01%   | 81.57%   | 44.93%  |
+| SiameseCNN | 4468069    | CCSK    | cw2vec    | char     | 78.03%    | 77.67%   | 73.81%   | 73.38%  |
+| SiameseCNN | 4899669    | CCSK    | cw2vec    | word     | 77.87%    | 77.28%   | 72.04%   | 71.24%  |
+| SiameseCNN | 7097021    | PiPiDai | PiPiDai   | char     | 51.99%    | 34.21%   | 51.72%   | 34.09%  |
+| SiameseCNN | 9789221    | PiPiDai | PiPiDai   | word     | 51.99%    | 34.09%   | 51.72%   | 34.09%  |
+
+* this model predict everything to be positive on PiPiDai dataset...
+
+> 2019/9/23 Old SiameseCNN (using TextCNN structure)
+>
+> | Model      | Complexity | Dataset | Embedding | Word Seg | Valid Acc | Valid F1 | Test Acc | Test F1 |
+> | ---------- | ---------- | ------- | --------- | -------- | --------- | -------- | -------- | ------- |
+> | SiameseCNN | 251501     | Ant     | cw2vec    | char     | 81.88%    | 45.17%   | 81.58%   | 45.03%  |
+> | SiameseCNN | 1354601    | Ant     | cw2vec    | word     | 83.35%    | 53.69%   | 81.45%   | 45.96%  |
+> | SiameseCNN | 185701     | CCSK    | cw2vec    | char     | 84.28%    | 84.25%   | 75.07%   | 74.96%  |
+> | SiameseCNN | 617301     | CCSK    | cw2vec    | word     | 87.78%    | 87.78%   | 77.43%   | 77.38%  |
+> | SiameseCNN | 717501     | PiPiDai | PiPiDai   | char     | 73.30%    | 73.18%   | 68.93%   | 68.81%  |
+> | SiameseCNN | 3409701    | PiPiDai | PiPiDai   | word     | 84.17%    | 84.09%   | 74.68%   | 74.55%  |
 
 | Model      | Complexity | Dataset | Embedding | Word Seg | Valid Acc | Valid F1 | Test Acc | Test F1 |
 | ---------- | ---------- | ------- | --------- | -------- | --------- | -------- | -------- | ------- |
