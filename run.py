@@ -106,10 +106,10 @@ def get_model_parameters(model, trainable_only=False):
 
 def print_settings(args):
     logging.info('Configurations:')
-    logging.info(f'\tDataset\t\t: {args.dataset}')
+    logging.info(f'\tDataset\t: {args.dataset}')
     if args.dataset != "Quora":  # All the Chinese dataset
         logging.info(f'\t Word Segment\t: {args.word_segment}')
-        logging.info(f'\t Embedding\t\t: {args.chinese_embed}')
+        logging.info(f'\t Embedding\t: {args.chinese_embed}')
     logging.info(f'\t Train Embedding: {not args.not_train_embed}')
     logging.info(f'\tMode\t\t: {args.mode}')
     logging.info(f'\tSampling\t: {args.sampling}')

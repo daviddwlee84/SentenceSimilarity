@@ -231,7 +231,66 @@ Data
   * sigmoid => softmax
   * (but how about siamese model??)
 
-## Notes about Virtualenv
+## Notes
+
+### Notes for unbalanced data
+
+#### Balance data generator
+
+> In `data_prepare.py`, the `class BalanceDataHelper`
+
+#### Use different loss
+
+* Dice loss
+  * [Dice Loss PR · Issue #1249 · pytorch/pytorch](https://github.com/pytorch/pytorch/issues/1249)
+  * other approach
+
+    ```py
+    if weight is None:
+            weight = torch.ones(
+                y_pred.shape[-1], dtype=torch.float).to(device=y_pred.device)  # (C)
+        if not mode:
+            return self.simple_cross_entry(y_pred, golden, seq_mask, weight)
+        probs = nn.functional.softmax(y_pred, dim=2)  # (B, T, C)
+        B, T, C = probs.shape
+
+        golden_index = golden.unsqueeze(dim=2)  # (B, T, 1)
+        golden_probs = torch.gather(
+            probs, dim=2, index=golden_index)  # (B, T, 1)
+
+        probs_in_package = golden_probs.expand(B, T, T).transpose(1, 2)
+
+        packages = np.array([np.eye(T)] * B)  # (B, T, T)
+        probs_in_package = probs_in_package * \
+            torch.tensor(packages, dtype=torch.float).to(device=probs.device)
+        max_probs_in_package, _ = torch.max(probs_in_package, dim=2)
+
+        golden_probs = golden_probs.squeeze(dim=2)
+
+        golden_weight = golden_probs / (max_probs_in_package)  # (B, T)
+
+        golden_weight = golden_weight.view(-1)
+        golden_weight = golden_weight.detach()
+        y_pred = y_pred.view(-1, C)
+        golden = golden.view(-1)
+        seq_mask = seq_mask.view(-1)
+
+        negative_label = torch.tensor(
+            [0] * (B * T), dtype=torch.long, device=y_pred.device)
+        golden_loss = nn.functional.cross_entropy(
+            y_pred, golden, weight=weight, reduction='none')
+        negative_loss = nn.functional.cross_entropy(
+            y_pred, negative_label, weight=weight, reduction='none')
+
+        loss = golden_weight * golden_loss + \
+            (1 - golden_weight) * negative_loss  # (B * T)
+        loss = torch.dot(loss, seq_mask) / (torch.sum(seq_mask) + self.epsilon)
+    ```
+
+* Triplet-Loss
+* N-pair Loss
+
+### Notes about Virtualenv
 
 ```sh
 # this will create a env_name folder in current directory

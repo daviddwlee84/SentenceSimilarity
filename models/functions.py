@@ -19,3 +19,15 @@ def contrastive_loss(output1, output2, label, margin=2.0):
                                   (label) * torch.pow(torch.clamp(margin - euclidean_distance, min=0.0), 2))
 
     return loss_contrastive
+
+
+def dice_loss(pred, target):
+    """ dice loss for unbalanced data training """
+    smooth = 1.
+
+    iflat = pred.view(-1)
+    tflat = target.view(-1)
+    intersection = (iflat * tflat).sum()
+
+    return 1 - ((2. * intersection + smooth) /
+                (iflat.sum() + tflat.sum() + smooth))

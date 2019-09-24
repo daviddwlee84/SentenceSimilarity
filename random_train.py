@@ -7,7 +7,7 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import f1_score, confusion_matrix, classification_report
 
 from data_prepare import train_test_data_loader, tokenize_and_padding
-from models.functions import contrastive_loss  # deprecated
+from models.functions import contrastive_loss, dice_loss
 from utils import save_model
 
 import logging
@@ -53,7 +53,11 @@ def train(args, model, tokenizer, device, optimizer):
                 loss = contrastive_loss(output1, output2, target)
             else:
                 output = model(input_1, input_2)
-                loss = F.binary_cross_entropy(output, target.view_as(output))
+                if args.dataset == "Ant":  # use dice loss on unbalance dataset
+                    loss = dice_loss(output, target.view_as(output))
+                else:
+                    loss = F.binary_cross_entropy(
+                        output, target.view_as(output))
 
             loss.backward()
             optimizer.step()
@@ -89,8 +93,12 @@ def _test_on_dataloader(args, model, device, test_loader, dataset="Valid", final
             else:
                 output = model(input_1, input_2)
                 # sum up batch loss
-                test_loss += F.binary_cross_entropy(
-                    output, target.view_as(output), reduction='sum').item()
+                if args.dataset == "Ant":  # use dice loss on unbalance dataset
+                    test_loss += dice_loss(output,
+                                           target.view_as(output)).item()
+                else:
+                    test_loss += F.binary_cross_entropy(
+                        output, target.view_as(output), reduction='sum').item()
 
             pred = output.round()
             correct += pred.eq(target.view_as(pred)).sum().item()
