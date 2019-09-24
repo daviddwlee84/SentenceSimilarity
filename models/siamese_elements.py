@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import math
 
 
 class SingleSiameseCNN(nn.Module):
@@ -9,32 +10,38 @@ class SingleSiameseCNN(nn.Module):
         self.embedding = nn.Embedding.from_pretrained(
             embedding_matrix, freeze=freeze_embed)
         cnn_feature_num = 256
+        cnn_filter_size = 7
+        padding_size = math.floor(cnn_filter_size/2)
+        pools_size = 3
         self.cnn_layers = nn.Sequential(
             nn.Conv1d(max_len, cnn_feature_num,
-                      7, stride=1, padding=3),
+                      cnn_filter_size, stride=1, padding=padding_size),
             nn.ReLU(inplace=True),
-            nn.MaxPool1d(3),
+            nn.MaxPool1d(pools_size),
             nn.Conv1d(cnn_feature_num, cnn_feature_num,
-                      7, stride=1, padding=3),
+                      cnn_filter_size, stride=1, padding=padding_size),
             nn.ReLU(inplace=True),
-            nn.MaxPool1d(3),
+            nn.MaxPool1d(pools_size),
             nn.Conv1d(cnn_feature_num, cnn_feature_num,
-                      7, stride=1, padding=3),
-            nn.ReLU(inplace=True),
-            nn.Conv1d(cnn_feature_num, cnn_feature_num,
-                      7, stride=1, padding=3),
+                      cnn_filter_size, stride=1, padding=padding_size),
             nn.ReLU(inplace=True),
             nn.Conv1d(cnn_feature_num, cnn_feature_num,
-                      7, stride=1, padding=3),
+                      cnn_filter_size, stride=1, padding=padding_size),
             nn.ReLU(inplace=True),
             nn.Conv1d(cnn_feature_num, cnn_feature_num,
-                      7, stride=1, padding=3),
+                      cnn_filter_size, stride=1, padding=padding_size),
             nn.ReLU(inplace=True),
-            nn.MaxPool1d(3)
+            nn.Conv1d(cnn_feature_num, cnn_feature_num,
+                      cnn_filter_size, stride=1, padding=padding_size),
+            nn.ReLU(inplace=True),
+            nn.MaxPool1d(pools_size)
         )
         fcnn_units = 1024
+        nums_of_pools = 3
+        feature_left = math.floor(
+            self.embedding.embedding_dim / pools_size**nums_of_pools)
         self.dense = nn.Sequential(
-            nn.Linear(cnn_feature_num*3, fcnn_units),
+            nn.Linear(cnn_feature_num*feature_left, fcnn_units),
             nn.ReLU(inplace=True),
             nn.Dropout(p=0.5),
             nn.Linear(fcnn_units, fcnn_units),
