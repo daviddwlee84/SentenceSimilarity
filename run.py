@@ -11,7 +11,7 @@ import torch.optim as optim
 from models.rcnn import EnhancedRCNN
 from models.rcnn_transformer import EnhancedRCNN_Transformer
 from models.siamese_models import SiameseModel
-from models.siamese_elements import SingleSiameseCNN, SingleSiameseRNN, SingleSiameseLSTM
+from models.siamese_elements import SingleSiameseCNN, SingleSiameseTextCNN, SingleSiameseRNN, SingleSiameseLSTM
 from models.functions import l1_distance
 from data_prepare import embedding_loader, tokenize_and_padding
 from utils import get_available_gpu
@@ -247,7 +247,11 @@ def main():
         output_size = 100
         similarity_function = l1_distance
         if args.model[7:] == "CNN":
-            single_model = SingleSiameseCNN(embeddings_matrix, args.max_len, output_size,
+            # original Siamese-CNN paper
+            # single_model = SingleSiameseCNN(embeddings_matrix, args.max_len, output_size,
+            #                                 freeze_embed=args.not_train_embed).to(device)
+            # use TextCNN model
+            single_model = SingleSiameseTextCNN(embeddings_matrix, args.max_len, output_size, device,
                                             freeze_embed=args.not_train_embed).to(device)
         elif args.model[7:] == "RNN":
             single_model = SingleSiameseRNN(embeddings_matrix, args.max_len, output_size,

@@ -109,8 +109,6 @@ class SingleSiameseLSTM(nn.Module):
 
 
 class SingleSiameseTextCNN(nn.Module):
-    """ deprecated """
-
     def __init__(self, embedding_matrix, max_len, output_size, device, linear_size=128, windows=[3, 4, 5], freeze_embed=False):
         super(SingleSiameseTextCNN, self).__init__()
         self.embedding = nn.Embedding.from_pretrained(
