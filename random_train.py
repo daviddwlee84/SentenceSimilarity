@@ -53,7 +53,8 @@ def train(args, model, tokenizer, device, optimizer):
                 loss = contrastive_loss(output1, output2, target)
             else:
                 output = model(input_1, input_2)
-                if args.dataset == "Ant":  # use dice loss on unbalance dataset
+                if args.dataset == "Ant" and False:  # currently disable this
+                    # use dice loss on unbalance dataset
                     loss = dice_loss(output, target.view_as(output))
                 else:
                     loss = F.binary_cross_entropy(
@@ -93,7 +94,8 @@ def _test_on_dataloader(args, model, device, test_loader, dataset="Valid", final
             else:
                 output = model(input_1, input_2)
                 # sum up batch loss
-                if args.dataset == "Ant":  # use dice loss on unbalance dataset
+                if args.dataset == "Ant" and False:  # currently disable this
+                    # use dice loss on unbalance dataset
                     test_loss += dice_loss(output,
                                            target.view_as(output)).item()
                 else:
