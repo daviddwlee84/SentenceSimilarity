@@ -115,16 +115,15 @@ class SingleSiameseLSTM(nn.Module):
 class SingleSiameseTextCNN(nn.Module):
     """ Model is based on "Convolutional Neural Networks for Sentence Classification" """
 
-    def __init__(self, embedding_matrix, max_len, output_size, device, linear_size=128, windows=[3, 4, 5], freeze_embed=False):
+    def __init__(self, embedding_matrix, max_len, output_size, linear_size=128, windows=[3, 4, 5], freeze_embed=False):
         super(SingleSiameseTextCNN, self).__init__()
         self.embedding = nn.Embedding.from_pretrained(
             embedding_matrix, freeze=freeze_embed)
-        # somehow the model in list can't be auto connect `to(device)`
-        self.cnn_filters = [
+        self.cnn_filters = nn.ModuleList([
             nn.Sequential(
                 nn.Conv1d(max_len, linear_size, kernel_wide),
                 nn.ReLU()
-            ).to(device) for kernel_wide in windows]
+            ) for kernel_wide in windows])
         self.dense = nn.Sequential(
             nn.Linear(linear_size*len(windows), output_size),
             nn.Sigmoid()

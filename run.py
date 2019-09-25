@@ -253,7 +253,7 @@ def main():
             # single_model = SingleSiameseCNN(embeddings_matrix, args.max_len, output_size,
             #                                 freeze_embed=args.not_train_embed).to(device)
             # use TextCNN model
-            single_model = SingleSiameseTextCNN(embeddings_matrix, args.max_len, output_size, device,
+            single_model = SingleSiameseTextCNN(embeddings_matrix, args.max_len, output_size,
                                                 freeze_embed=args.not_train_embed).to(device)
         elif args.model[7:] == "RNN":
             single_model = SingleSiameseRNN(embeddings_matrix, args.max_len, output_size,
