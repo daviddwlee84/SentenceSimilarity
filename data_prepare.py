@@ -11,13 +11,17 @@ import logging
 logger = logging.getLogger('data_prepare')
 
 
-def data_loader(mode="word", dataset="Ant"):
+def data_loader(mode="char", dataset="Ant", is_submit=False):
     """ load entire training (labeled) data """
     logger.info(f'Loading data of {dataset} dataset...')
     if dataset == "Ant" or dataset == "CCSK":
         if dataset == "Ant":
-            data = pd.read_csv(f"data/sentence_{mode}_train.csv",
-                               header=None, names=["doc1", "doc2", "label"])
+            if is_submit:  # load test file
+                data = pd.read_csv(f"sentence_{mode}_test.csv",
+                                   header=None, names=["doc1", "doc2"])
+            else:
+                data = pd.read_csv(f"data/sentence_{mode}_train.csv",
+                                   header=None, names=["doc1", "doc2", "label"])
         elif dataset == "CCSK":
             data = pd.read_csv(f"data/ccsk_{mode}.csv",
                                header=None, names=["doc1", "doc2", "label"])
@@ -27,6 +31,8 @@ def data_loader(mode="word", dataset="Ant"):
 
         X1 = data["doc1"]
         X2 = data["doc2"]
+        if is_submit:
+            return X1.values, X2.values
         Y = data["label"]
 
     elif dataset == "PiPiDai":

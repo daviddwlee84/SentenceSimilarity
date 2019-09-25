@@ -11,8 +11,14 @@ git lfs clone --depth=1 https://github.com/daviddwlee84/Enhanced-RCNN.git
 Quick Execute All
 
 ```sh
+# Data preprocessing
 ./all_data_preprocess.sh
+# Train & Evaluate
 ./train_all_data_at_once.sh [model name]
+
+# Test Ant Submission
+bash run.sh raw_data/competition_train.csv ant_test_pred.csv
+zip -r AntSubmit.zip . -i \*.py \*.sh -i data/stopwords.txt
 ```
 
 Usage

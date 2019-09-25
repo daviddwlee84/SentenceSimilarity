@@ -106,7 +106,7 @@ def get_model_parameters(model, trainable_only=False):
 
 def print_settings(args):
     logging.info('Configurations:')
-    logging.info(f'\tDataset\t: {args.dataset}')
+    logging.info(f'\tDataset\t\t: {args.dataset}')
     if args.dataset != "Quora":  # All the Chinese dataset
         logging.info(f'\t Word Segment\t: {args.word_segment}')
         logging.info(f'\t Embedding\t: {args.chinese_embed}')
@@ -117,7 +117,7 @@ def print_settings(args):
         logging.info(f'\t Generate train\t: {args.generate_train}')
         logging.info(f'\t Generate test\t: {args.generate_test}')
     logging.info(f'\tUsing Model\t: {args.model}')
-    logging.info(f'\tParameters\t:')
+    logging.info(f'\tParameters:')
     logging.info(f'\t Learning Rate\t: {args.lr}')
 
 
@@ -129,8 +129,8 @@ def main():
                         choices=['Ant', 'CCSK', 'PiPiDai', 'Quora'],
                         help='Chinese: Ant, CCSK; English: Quora (default: Ant)')
     parser.add_argument('--mode', type=str, default='both', metavar='mode',
-                        choices=['train', 'test', 'both', 'predict'],
-                        help='script mode [train/test/both/predict] (default: both)')
+                        choices=['train', 'test', 'both', 'predict', 'submit'],
+                        help='script mode [train/test/both/predict/submit(Ant)] (default: both)')
     parser.add_argument('--sampling', type=str, default='random', metavar='mode',
                         # random means use original data
                         choices=['random', 'balance'],
@@ -181,6 +181,8 @@ def main():
                         help='for not saving the current model')
     parser.add_argument('--load-model', type=str, default='', metavar='name',
                         help='load the specific model checkpoint file')
+    parser.add_argument('--submit-path', type=str, metavar='path:',
+                        help='submission file path (currently for Ant dataset)')
 
     args = parser.parse_args()
 
@@ -252,7 +254,7 @@ def main():
             #                                 freeze_embed=args.not_train_embed).to(device)
             # use TextCNN model
             single_model = SingleSiameseTextCNN(embeddings_matrix, args.max_len, output_size, device,
-                                            freeze_embed=args.not_train_embed).to(device)
+                                                freeze_embed=args.not_train_embed).to(device)
         elif args.model[7:] == "RNN":
             single_model = SingleSiameseRNN(embeddings_matrix, args.max_len, output_size,
                                             bidirectional=False, freeze_embed=args.not_train_embed).to(device)
@@ -289,6 +291,15 @@ def main():
         logging.info("Predicting manually...")
         load_model(args, model)
         predict(args, model, tokenizer, device)
+    if args.mode == "submit":
+        if args.dataset != "Ant":
+            logging.warning("Currently support Ant dataset only")
+            exit(1)
+        from submit import ant_submit
+        args.test_split = 0  # train on entire training data
+        # train(args, model, tokenizer, device, optimizer)
+        load_model(args, model)  # DELETE
+        ant_submit(args, model, tokenizer, device)
 
 
 if __name__ == "__main__":
