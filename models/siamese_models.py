@@ -3,11 +3,14 @@ import torch.nn as nn
 
 
 class SiameseModel(nn.Module):
-    def __init__(self, single_model, similarity_function, linear_size, num_class=1):
+    def __init__(self, single_model, similarity_function, linear_size, num_class=1, dropout=0.2):
         super(SiameseModel, self).__init__()
         self.half_model = single_model
         self.distance = similarity_function
         self.dense = nn.Sequential(
+            nn.Linear(linear_size, linear_size),
+            nn.ReLU(),
+            nn.Dropout(p=dropout),
             nn.Linear(linear_size, num_class),
             nn.Sigmoid()
         )

@@ -246,7 +246,7 @@ def main():
         model = EnhancedRCNN_Transformer(
             embeddings_matrix, args.max_len, freeze_embed=args.not_train_embed).to(device)
     elif args.model[:7] == "Siamese":
-        output_size = 100
+        output_size = 512
         similarity_function = l1_distance
         if args.model[7:] == "CNN":
             # original Siamese-CNN paper

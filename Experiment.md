@@ -11,46 +11,6 @@
 
 > Valid Data: the performance of cross-validation on the last epoch
 
-| Model      | Complexity | Dataset | Embedding | Word Seg | lr      | Valid Acc | Valid F1 | Test Acc | Test F1 |
-| ---------- | ---------- | ------- | --------- | -------- | ------- | --------- | -------- | -------- | ------- |
-| SiameseCNN | 4533869    | Ant     | cw2vec    | char     | 0.00001 | 73.46%    | 51.62%   | 73.37%   | 52.09%  |
-| SiameseCNN | 5636969    | Ant     | cw2vec    | word     | 0.00001 | 73.61%    | 52.21%   | 73.65%   | 51.86%  |
-| SiameseCNN | 4468069    | CCSK    | cw2vec    | char     | 0.001   | 78.03%    | 77.67%   | 73.81%   | 73.38%  |
-| SiameseCNN | 4899669    | CCSK    | cw2vec    | word     | 0.001   | 77.87%    | 77.28%   | 72.04%   | 71.24%  |
-| SiameseCNN | 7097021    | PiPiDai | PiPiDai   | char     | 0.0001  | 81.17%    | 81.15%   | 77.63%   | 77.59%  |
-| SiameseCNN | 9789221    | PiPiDai | PiPiDai   | word     | 0.0001  | 81.17%    | 81.15%   | 77.63%   | 77.59%  |
-
-* this model predict everything to be positive on PiPiDai dataset...
-
-> 2019/9/23 Old SiameseCNN (using TextCNN structure)
->
-> | Model      | Complexity | Dataset | Embedding | Word Seg | lr    | Valid Acc | Valid F1 | Test Acc | Test F1 |
-> | ---------- | ---------- | ------- | --------- | -------- | ----- | --------- | -------- | -------- | ------- |
-> | SiameseCNN | 251501     | Ant     | cw2vec    | char     | 0.001 | 81.88%    | 45.17%   | 81.58%   | 45.03%  |
-> | SiameseCNN | 1354601    | Ant     | cw2vec    | word     | 0.001 | 83.35%    | 53.69%   | 81.45%   | 45.96%  |
-> | SiameseCNN | 185701     | CCSK    | cw2vec    | char     | 0.001 | 84.28%    | 84.25%   | 75.07%   | 74.96%  |
-> | SiameseCNN | 617301     | CCSK    | cw2vec    | word     | 0.001 | 87.78%    | 87.78%   | 77.43%   | 77.38%  |
-> | SiameseCNN | 717501     | PiPiDai | PiPiDai   | char     | 0.001 | 73.30%    | 73.18%   | 68.93%   | 68.81%  |
-> | SiameseCNN | 3409701    | PiPiDai | PiPiDai   | word     | 0.001 | 84.17%    | 84.09%   | 74.68%   | 74.55%  |
-
-| Model      | Complexity | Dataset | Embedding | Word Seg | lr    | Valid Acc | Valid F1 | Test Acc | Test F1 |
-| ---------- | ---------- | ------- | --------- | -------- | ----- | --------- | -------- | -------- | ------- |
-| SiameseRNN | 288365     | Ant     | cw2vec    | char     | 0.001 | 81.85%    | 45.01%   | 81.57%   | 44.93%  |
-| SiameseRNN | 1391465    | Ant     | cw2vec    | word     | 0.001 | 81.85%    | 45.01%   | 81.57%   | 44.93%  |
-| SiameseRNN | 222565     | CCSK    | cw2vec    | char     | 0.001 | 64.98%    | 64.96%   | 63.15%   | 63.13%  |
-| SiameseRNN | 654165     | CCSK    | cw2vec    | word     | 0.001 | 70.18%    | 70.17%   | 66.23%   | 66.19%  |
-| SiameseRNN | 779965     | PiPiDai | PiPiDai   | char     | 0.001 | 69.99%    | 69.87%   | 68.10%   | 68.00%  |
-| SiameseRNN | 3472165    | PiPiDai | PiPiDai   | word     | 0.001 | 73.36%    | 73.21%   | 70.76%   | 70.64%  |
-
-| Model       | Complexity | Dataset | Embedding | Word Seg | lr    | Valid Acc | Valid F1 | Test Acc | Test F1 |
-| ----------- | ---------- | ------- | --------- | -------- | ----- | --------- | -------- | -------- | ------- |
-| SiameseLSTM | 475757     | Ant     | cw2vec    | char     | 0.001 | 81.85%    | 45.01%   | 81.57%   | 44.93%  |
-| SiameseLSTM | 1578857    | Ant     | cw2vec    | word     | 0.001 | 81.85%    | 45.01%   | 81.57%   | 44.93%  |
-| SiameseLSTM | 409957     | CCSK    | cw2vec    | char     | 0.001 | 64.49%    | 64.42%   | 62.98%   | 62.92%  |
-| SiameseLSTM | 841557     | CCSK    | cw2vec    | word     | 0.001 | 69.45%    | 69.44%   | 65.71%   | 65.70%  |
-| SiameseLSTM | 1044157    | PiPiDai | PiPiDai   | char     | 0.001 | 67.58%    | 67.46%   | 66.51%   | 66.40%  |
-| SiameseLSTM | 3736357    | PiPiDai | PiPiDai   | word     | 0.001 | 70.90%    | 70.86%   | 68.56%   | 68.53%  |
-
 | Model | Complexity | Dataset | Embedding | Word Seg | lr    | Valid Acc | Valid F1 | Test Acc | Test F1 |
 | ----- | ---------- | ------- | --------- | -------- | ----- | --------- | -------- | -------- | ------- |
 | ERCNN | 2722885    | Ant     | cw2vec    | char     | 0.001 | 81.85%    | 45.01%   | 81.57%   | 44.93%  |
@@ -119,6 +79,48 @@ Fixed embedding
 
 > 1. Basically Transformer predict everything to be positive in PiPiDai
 > 2. When the model doesn't work, its loss will stick on 13.815511
+
+2019/9/24 Old Siamese Structure (The last dense layer)
+
+| Model      | Complexity | Dataset | Embedding | Word Seg | lr      | Valid Acc | Valid F1 | Test Acc | Test F1 |
+| ---------- | ---------- | ------- | --------- | -------- | ------- | --------- | -------- | -------- | ------- |
+| SiameseCNN | 4533869    | Ant     | cw2vec    | char     | 0.00001 | 73.46%    | 51.62%   | 73.37%   | 52.09%  |
+| SiameseCNN | 5636969    | Ant     | cw2vec    | word     | 0.00001 | 73.61%    | 52.21%   | 73.65%   | 51.86%  |
+| SiameseCNN | 4468069    | CCSK    | cw2vec    | char     | 0.001   | 78.03%    | 77.67%   | 73.81%   | 73.38%  |
+| SiameseCNN | 4899669    | CCSK    | cw2vec    | word     | 0.001   | 77.87%    | 77.28%   | 72.04%   | 71.24%  |
+| SiameseCNN | 7097021    | PiPiDai | PiPiDai   | char     | 0.0001  | 81.17%    | 81.15%   | 77.63%   | 77.59%  |
+| SiameseCNN | 9789221    | PiPiDai | PiPiDai   | word     | 0.0001  | 81.17%    | 81.15%   | 77.63%   | 77.59%  |
+
+* this model predict everything to be positive on PiPiDai dataset...
+
+> 2019/9/23 Old SiameseCNN (using TextCNN structure)
+>
+> | Model      | Complexity | Dataset | Embedding | Word Seg | lr    | Valid Acc | Valid F1 | Test Acc | Test F1 |
+> | ---------- | ---------- | ------- | --------- | -------- | ----- | --------- | -------- | -------- | ------- |
+> | SiameseCNN | 251501     | Ant     | cw2vec    | char     | 0.001 | 81.88%    | 45.17%   | 81.58%   | 45.03%  |
+> | SiameseCNN | 1354601    | Ant     | cw2vec    | word     | 0.001 | 83.35%    | 53.69%   | 81.45%   | 45.96%  |
+> | SiameseCNN | 185701     | CCSK    | cw2vec    | char     | 0.001 | 84.28%    | 84.25%   | 75.07%   | 74.96%  |
+> | SiameseCNN | 617301     | CCSK    | cw2vec    | word     | 0.001 | 87.78%    | 87.78%   | 77.43%   | 77.38%  |
+> | SiameseCNN | 717501     | PiPiDai | PiPiDai   | char     | 0.001 | 73.30%    | 73.18%   | 68.93%   | 68.81%  |
+> | SiameseCNN | 3409701    | PiPiDai | PiPiDai   | word     | 0.001 | 84.17%    | 84.09%   | 74.68%   | 74.55%  |
+
+| Model      | Complexity | Dataset | Embedding | Word Seg | lr    | Valid Acc | Valid F1 | Test Acc | Test F1 |
+| ---------- | ---------- | ------- | --------- | -------- | ----- | --------- | -------- | -------- | ------- |
+| SiameseRNN | 288365     | Ant     | cw2vec    | char     | 0.001 | 81.85%    | 45.01%   | 81.57%   | 44.93%  |
+| SiameseRNN | 1391465    | Ant     | cw2vec    | word     | 0.001 | 81.85%    | 45.01%   | 81.57%   | 44.93%  |
+| SiameseRNN | 222565     | CCSK    | cw2vec    | char     | 0.001 | 64.98%    | 64.96%   | 63.15%   | 63.13%  |
+| SiameseRNN | 654165     | CCSK    | cw2vec    | word     | 0.001 | 70.18%    | 70.17%   | 66.23%   | 66.19%  |
+| SiameseRNN | 779965     | PiPiDai | PiPiDai   | char     | 0.001 | 69.99%    | 69.87%   | 68.10%   | 68.00%  |
+| SiameseRNN | 3472165    | PiPiDai | PiPiDai   | word     | 0.001 | 73.36%    | 73.21%   | 70.76%   | 70.64%  |
+
+| Model       | Complexity | Dataset | Embedding | Word Seg | lr    | Valid Acc | Valid F1 | Test Acc | Test F1 |
+| ----------- | ---------- | ------- | --------- | -------- | ----- | --------- | -------- | -------- | ------- |
+| SiameseLSTM | 475757     | Ant     | cw2vec    | char     | 0.001 | 81.85%    | 45.01%   | 81.57%   | 44.93%  |
+| SiameseLSTM | 1578857    | Ant     | cw2vec    | word     | 0.001 | 81.85%    | 45.01%   | 81.57%   | 44.93%  |
+| SiameseLSTM | 409957     | CCSK    | cw2vec    | char     | 0.001 | 64.49%    | 64.42%   | 62.98%   | 62.92%  |
+| SiameseLSTM | 841557     | CCSK    | cw2vec    | word     | 0.001 | 69.45%    | 69.44%   | 65.71%   | 65.70%  |
+| SiameseLSTM | 1044157    | PiPiDai | PiPiDai   | char     | 0.001 | 67.58%    | 67.46%   | 66.51%   | 66.40%  |
+| SiameseLSTM | 3736357    | PiPiDai | PiPiDai   | word     | 0.001 | 70.90%    | 70.86%   | 68.56%   | 68.53%  |
 
 ---
 
