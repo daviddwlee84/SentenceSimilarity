@@ -16,8 +16,9 @@ Quick Execute All
 # Train & Evaluate
 ./train_all_data_at_once.sh [model name]
 
-# Test Ant Submission
+# Test Ant Submission functionality
 bash run.sh raw_data/competition_train.csv ant_test_pred.csv
+# pack the Ant Submission files
 zip -r AntSubmit.zip . -i \*.py \*.sh -i data/stopwords.txt
 ```
 
