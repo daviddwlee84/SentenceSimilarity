@@ -49,6 +49,15 @@ Model
 * Baseline
   * Siamese Series
     * `SiameseCNN`
+      * Convolutional Neural Networks for Sentence Classification
+      * Character-level Convolutional Networks for Text Classification
+    * `SiameseRNN`
+    * `SiameseLSTM`
+      * Siamese Recurrent Architectures for Learning Sentence Similarity
+    * `SiameseRCNN`
+      * Siamese Recurrent Architectures for Learning Sentence Similarity
+    * `SiameseAttentionRNN`
+      * Text Classification Research with Attention-based Recurrent Neural Networks
 
 Dataset
 

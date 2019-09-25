@@ -11,7 +11,7 @@ import torch.optim as optim
 from models.rcnn import EnhancedRCNN
 from models.rcnn_transformer import EnhancedRCNN_Transformer
 from models.siamese_models import SiameseModel
-from models.siamese_elements import SingleSiameseCNN, SingleSiameseTextCNN, SingleSiameseRNN, SingleSiameseLSTM, SingleSiameseRCNN
+from models.siamese_elements import SingleSiameseCNN, SingleSiameseTextCNN, SingleSiameseRNN, SingleSiameseLSTM, SingleSiameseRCNN, SingleSiameseAttentionRNN
 from models.functions import l1_distance
 from data_prepare import embedding_loader, tokenize_and_padding
 from utils import get_available_gpu
@@ -141,8 +141,8 @@ def main():
                         help='use generated negative samples when testing (used in balance sampling)')
     parser.add_argument('--model', type=str, default='ERCNN', metavar='model',
                         choices=['ERCNN', 'Transformer',
-                                 'SiameseCNN', 'SiameseRNN', 'SiameseLSTM', 'SiameseRCNN'],
-                        help='model to use [ERCNN/Transformer] (default: ERCNN)')
+                                 'SiameseCNN', 'SiameseRNN', 'SiameseLSTM', 'SiameseRCNN', 'SiameseAttentionRNN'],
+                        help='model to use [ERCNN/Transformer/Siamese(CNN/RNN/LSTM/RCNN/AttentionRNN)] (default: ERCNN)')
     parser.add_argument('--word-segment', type=str, default='char', metavar='WS',
                         choices=['word', 'char'],
                         help='chinese word split mode [word/char] (default: char)')
@@ -264,6 +264,9 @@ def main():
         elif args.model[7:] == "RCNN":
             single_model = SingleSiameseRCNN(embeddings_matrix, args.max_len, output_size,
                                              freeze_embed=args.not_train_embed).to(device)
+        elif args.model[7:] == "AttentionRNN":
+            single_model = SingleSiameseAttentionRNN(embeddings_matrix, args.max_len, output_size,
+                                                     freeze_embed=args.not_train_embed).to(device)
         model = SiameseModel(single_model, similarity_function,
                              output_size).to(device)
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(

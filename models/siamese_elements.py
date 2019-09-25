@@ -175,3 +175,92 @@ class SingleSiameseRCNN(nn.Module):
         # batch_size, output_size
         output = self.dense(last_hidden_state)
         return output
+
+
+class SingleSiameseAttentionRNN(nn.Module):
+    """ Model is based on "Text Classification Research with Attention-based Recurrent Neural Networks" """
+
+    def __init__(self, embedding_matrix, max_len, output_size, freeze_embed=False):
+        super(SingleSiameseAttentionRNN, self).__init__()
+        self.embedding = nn.Embedding.from_pretrained(
+            embedding_matrix, freeze=freeze_embed)
+
+        hidden_layer_size = 100
+        self.seq_len = max_len
+        self.num_direction = 2
+        num_rnn_layers = 1
+
+        self.rnn = nn.RNN(self.embedding.embedding_dim, hidden_layer_size,
+                          num_rnn_layers, bidirectional=True)
+        self.attention = Attention(
+            self.embedding.embedding_dim*self.num_direction, max_len)
+
+        dense_size = 100
+        self.dense = nn.Sequential(
+            nn.Linear(hidden_layer_size*self.num_direction*2, dense_size),
+            nn.ReLU(),
+            nn.Dropout(p=0.2),
+            nn.Linear(dense_size, output_size),
+            nn.Sigmoid()
+        )
+
+    def forward(self, sentence):
+        # batch_size, max_len, embed_dim
+        sent_embed = self.embedding(sentence)
+        # max_len, batch_size, num_directions, hidden_layer_size
+        rnn_output = self.rnn(sent_embed)[0].view(
+            self.seq_len, -1, self.num_direction, self.embedding.embedding_dim)
+        # batch_size, max_len, hidden_layer_size
+        rnn_forward = rnn_output[:, :, 0, :].permute(1, 0, 2)
+        # batch_size, max_len, hidden_layer_size
+        rnn_backward = rnn_output[:, :, 1, :].permute(1, 0, 2)
+
+        # batch_size, max_len, hidden_layer_size
+        rnn_cat = torch.cat((rnn_forward, rnn_backward), dim=-1)
+
+        attention = self.attention(rnn_cat)
+        forward_last_state = rnn_forward[:, -1, :]
+        backward_last_state = rnn_backward[:, -1, :]
+
+        dense_input = torch.cat(
+            (attention, forward_last_state, backward_last_state), dim=-1)
+
+        # batch_size, output_size
+        output = self.dense(dense_input)
+        return output
+
+
+# Sub-Layers
+
+class Attention(nn.Module):
+    def __init__(self, feature_dim, step_dim, bias=True, **kwargs):
+        super(Attention, self).__init__(**kwargs)
+
+        self.bias = bias
+        self.feature_dim = feature_dim
+        self.step_dim = step_dim
+        self.features_dim = 0
+
+        weight = torch.zeros(feature_dim, 1)
+        nn.init.kaiming_uniform_(weight)
+        self.weight = nn.Parameter(weight)
+
+        if bias:
+            self.b = nn.Parameter(torch.zeros(step_dim))
+
+    def forward(self, x):
+        eij = torch.mm(
+            x.contiguous().view(-1, self.feature_dim),
+            self.weight
+        ).view(-1, self.step_dim)
+
+        if self.bias:
+            eij = eij + self.b
+
+        eij = torch.tanh(eij)
+        a = torch.exp(eij)
+
+        a = a / (torch.sum(a, 1, keepdim=True) + 1e-10)
+
+        weighted_input = x * torch.unsqueeze(a, -1)
+        return torch.sum(weighted_input, 1)
