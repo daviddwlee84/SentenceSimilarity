@@ -24,14 +24,14 @@
 
 > 2019/9/23 Old SiameseCNN (using TextCNN structure)
 >
-| Model      | Complexity | Dataset | Embedding | Word Seg | lr    | Valid Acc | Valid F1 | Test Acc | Test F1 |
-| ---------- | ---------- | ------- | --------- | -------- | ----- | --------- | -------- | -------- | ------- |
-| SiameseCNN | 251501     | Ant     | cw2vec    | char     | 0.001 | 81.88%    | 45.17%   | 81.58%   | 45.03%  |
-| SiameseCNN | 1354601    | Ant     | cw2vec    | word     | 0.001 | 83.35%    | 53.69%   | 81.45%   | 45.96%  |
-| SiameseCNN | 185701     | CCSK    | cw2vec    | char     | 0.001 | 84.28%    | 84.25%   | 75.07%   | 74.96%  |
-| SiameseCNN | 617301     | CCSK    | cw2vec    | word     | 0.001 | 87.78%    | 87.78%   | 77.43%   | 77.38%  |
-| SiameseCNN | 717501     | PiPiDai | PiPiDai   | char     | 0.001 | 73.30%    | 73.18%   | 68.93%   | 68.81%  |
-| SiameseCNN | 3409701    | PiPiDai | PiPiDai   | word     | 0.001 | 84.17%    | 84.09%   | 74.68%   | 74.55%  |
+> | Model      | Complexity | Dataset | Embedding | Word Seg | lr    | Valid Acc | Valid F1 | Test Acc | Test F1 |
+> | ---------- | ---------- | ------- | --------- | -------- | ----- | --------- | -------- | -------- | ------- |
+> | SiameseCNN | 251501     | Ant     | cw2vec    | char     | 0.001 | 81.88%    | 45.17%   | 81.58%   | 45.03%  |
+> | SiameseCNN | 1354601    | Ant     | cw2vec    | word     | 0.001 | 83.35%    | 53.69%   | 81.45%   | 45.96%  |
+> | SiameseCNN | 185701     | CCSK    | cw2vec    | char     | 0.001 | 84.28%    | 84.25%   | 75.07%   | 74.96%  |
+> | SiameseCNN | 617301     | CCSK    | cw2vec    | word     | 0.001 | 87.78%    | 87.78%   | 77.43%   | 77.38%  |
+> | SiameseCNN | 717501     | PiPiDai | PiPiDai   | char     | 0.001 | 73.30%    | 73.18%   | 68.93%   | 68.81%  |
+> | SiameseCNN | 3409701    | PiPiDai | PiPiDai   | word     | 0.001 | 84.17%    | 84.09%   | 74.68%   | 74.55%  |
 
 | Model      | Complexity | Dataset | Embedding | Word Seg | lr    | Valid Acc | Valid F1 | Test Acc | Test F1 |
 | ---------- | ---------- | ------- | --------- | -------- | ----- | --------- | -------- | -------- | ------- |
