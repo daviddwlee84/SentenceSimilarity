@@ -5,6 +5,8 @@ import math
 
 
 class SingleSiameseCNN(nn.Module):
+    """ Model is based on "Character-level Convolutional Networks for Text Classification" """
+
     def __init__(self, embedding_matrix, max_len, output_size, freeze_embed=False):
         super(SingleSiameseCNN, self).__init__()
         self.embedding = nn.Embedding.from_pretrained(
@@ -84,6 +86,8 @@ class SingleSiameseRNN(nn.Module):
 
 
 class SingleSiameseLSTM(nn.Module):
+    """ Model is based on "Siamese Recurrent Architectures for Learning Sentence Similarity" """
+
     def __init__(self, embedding_matrix, max_len, output_size, bidirectional=False, num_layers=2, linear_size=128, freeze_embed=False):
         super(SingleSiameseLSTM, self).__init__()
         self.embedding = nn.Embedding.from_pretrained(
@@ -109,6 +113,8 @@ class SingleSiameseLSTM(nn.Module):
 
 
 class SingleSiameseTextCNN(nn.Module):
+    """ Model is based on "Convolutional Neural Networks for Sentence Classification" """
+
     def __init__(self, embedding_matrix, max_len, output_size, device, linear_size=128, windows=[3, 4, 5], freeze_embed=False):
         super(SingleSiameseTextCNN, self).__init__()
         self.embedding = nn.Embedding.from_pretrained(
@@ -135,4 +141,37 @@ class SingleSiameseTextCNN(nn.Module):
         # global_pooled_output = [F.max_pool1d(x, x.size(2)).squeeze(2) for x in output_of_cnns]
         dense_input = torch.cat(global_pooled_output, dim=1)
         output = self.dense(dense_input)
+        return output
+
+
+class SingleSiameseRCNN(nn.Module):
+    """ Model is based on "Siamese Recurrent Architectures for Learning Sentence Similarity" """
+
+    def __init__(self, embedding_matrix, max_len, output_size, num_layers=2, freeze_embed=False):
+        super(SingleSiameseRCNN, self).__init__()
+        self.embedding = nn.Embedding.from_pretrained(
+            embedding_matrix, freeze=freeze_embed)
+        hidden_layer_size = 100
+        context_window_size = 7
+        self.rnn = nn.RNN(self.embedding.embedding_dim, hidden_layer_size,
+                          num_layers, bidirectional=True)
+        self.cnn = nn.Conv1d(max_len, hidden_layer_size,
+                             context_window_size, padding=context_window_size//2)
+        self.dense = nn.Sequential(
+            nn.Linear(hidden_layer_size*2, output_size),
+            nn.Sigmoid()
+        )
+
+    def forward(self, sentence):
+        # batch_size, max_len, embed_dim
+        sent_embed = self.embedding(sentence)
+        # batch_size, max_len, hidden_layer_size*2
+        rnn_output, hn = self.rnn(sent_embed)
+        # batch_size, max_len, hidden_layer_size*2
+        cnn_output = self.cnn(rnn_output)
+        represent_for_words = F.relu(cnn_output)
+        # batch_size, hidden_layer_size*2
+        last_hidden_state = torch.max(represent_for_words, dim=1)[0]
+        # batch_size, output_size
+        output = self.dense(last_hidden_state)
         return output

@@ -7,6 +7,7 @@ def mean_max(x):
 
 
 def l1_distance(sent_embed_1, sent_embed_2):
+    """ Manhattan distance """
     return torch.abs(sent_embed_1 - sent_embed_2)
 
 
