@@ -184,19 +184,19 @@ class SingleSiameseAttentionRNN(nn.Module):
         self.embedding = nn.Embedding.from_pretrained(
             embedding_matrix, freeze=freeze_embed)
 
-        hidden_layer_size = 100
+        self.hidden_layer_size = 100
         self.seq_len = max_len
         self.num_direction = 2
         num_rnn_layers = 1
 
-        self.rnn = nn.RNN(self.embedding.embedding_dim, hidden_layer_size,
+        self.rnn = nn.RNN(self.embedding.embedding_dim, self.hidden_layer_size,
                           num_rnn_layers, bidirectional=True)
         self.attention = Attention(
             self.embedding.embedding_dim*self.num_direction, max_len)
 
         dense_size = 100
         self.dense = nn.Sequential(
-            nn.Linear(hidden_layer_size*self.num_direction*2, dense_size),
+            nn.Linear(self.hidden_layer_size*self.num_direction*2, dense_size),
             nn.ReLU(),
             nn.Dropout(p=0.2),
             nn.Linear(dense_size, output_size),
@@ -208,7 +208,7 @@ class SingleSiameseAttentionRNN(nn.Module):
         sent_embed = self.embedding(sentence)
         # max_len, batch_size, num_directions, hidden_layer_size
         rnn_output = self.rnn(sent_embed)[0].view(
-            self.seq_len, -1, self.num_direction, self.embedding.embedding_dim)
+            self.seq_len, -1, self.num_direction, self.hidden_layer_size)
         # batch_size, max_len, hidden_layer_size
         rnn_forward = rnn_output[:, :, 0, :].permute(1, 0, 2)
         # batch_size, max_len, hidden_layer_size
