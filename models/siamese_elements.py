@@ -61,7 +61,7 @@ class SingleSiameseCNN(nn.Module):
 
 
 class SingleSiameseRNN(nn.Module):
-    def __init__(self, embedding_matrix, max_len, output_size, bidirectional=False, num_layers=2, linear_size=128, freeze_embed=False):
+    def __init__(self, embedding_matrix, max_len, output_size, bidirectional=False, num_layers=2, linear_size=512, freeze_embed=False):
         super(SingleSiameseRNN, self).__init__()
         self.embedding = nn.Embedding.from_pretrained(
             embedding_matrix, freeze=freeze_embed)
@@ -189,7 +189,7 @@ class SingleSiameseAttentionRNN(nn.Module):
         self.num_direction = 2
         num_rnn_layers = 1
 
-        self.rnn = nn.RNN(self.embedding.embedding_dim, self.hidden_layer_size,
+        self.rnn = nn.GRU(self.embedding.embedding_dim, self.hidden_layer_size,
                           num_rnn_layers, bidirectional=True)
         self.attention = Attention(
             self.embedding.embedding_dim*self.num_direction, max_len)
@@ -232,15 +232,15 @@ class SingleSiameseAttentionRNN(nn.Module):
 # Sub-Layers
 
 class Attention(nn.Module):
-    def __init__(self, feature_dim, step_dim, bias=True, **kwargs):
-        super(Attention, self).__init__(**kwargs)
+    def __init__(self, feature_dim, step_dim, bias=True):
+        super(Attention, self).__init__()
 
         self.bias = bias
         self.feature_dim = feature_dim
         self.step_dim = step_dim
         self.features_dim = 0
 
-        weight = torch.zeros(feature_dim, 1)
+        weight = torch.zeros(feature_dim, step_dim)
         nn.init.kaiming_uniform_(weight)
         self.weight = nn.Parameter(weight)
 
@@ -248,18 +248,11 @@ class Attention(nn.Module):
             self.b = nn.Parameter(torch.zeros(step_dim))
 
     def forward(self, x):
-        eij = torch.mm(
-            x.contiguous().view(-1, self.feature_dim),
-            self.weight
-        ).view(-1, self.step_dim)
+        eij = torch.bmm(x, self.weight.unsqueeze(0).repeat(x.shape[0], 1, 1))
 
         if self.bias:
             eij = eij + self.b
 
-        eij = torch.tanh(eij)
-        a = torch.exp(eij)
+        a = F.softmax(eij)
 
-        a = a / (torch.sum(a, 1, keepdim=True) + 1e-10)
-
-        weighted_input = x * torch.unsqueeze(a, -1)
-        return torch.sum(weighted_input, 1)
+        return torch.sum(torch.bmm(a, x), dim=1)
