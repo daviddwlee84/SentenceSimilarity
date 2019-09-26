@@ -191,13 +191,13 @@ def main():
     os.makedirs(args.logdir, exist_ok=True)
     train_embed_txt = '(F)' if args.not_train_embed else '(T)'
     if args.dataset != "Quora":  # Chinese dataset
-        logfilename = '{}_{}_{}_{}_{}{}_{}_{}-{}_{}-{}'.format(
-            args.mode, args.dataset, args.sampling, args.model, args.chinese_embed, train_embed_txt, args.word_segment,
+        logfilename = '{}_{}_{}{}_{}_{}_{}_{}-{}_{}-{}'.format(
+            args.mode, args.sampling, args.chinese_embed, train_embed_txt, args.model, args.dataset, args.word_segment,
             ctime.tm_mon, ctime.tm_mday, ctime.tm_hour, ctime.tm_min
         )
     else:  # English dataset
         logfilename = '{}_{}_{}_{}_glove{}_{}-{}_{}-{}'.format(
-            args.mode, args.dataset, args.sampling, args.model, train_embed_txt,
+            args.mode, args.sampling, args.dataset, args.model, train_embed_txt,
             ctime.tm_mon, ctime.tm_mday, ctime.tm_hour, ctime.tm_min
         )
     setproctitle('WWW--' + logfilename)  # set process name

@@ -253,6 +253,6 @@ class Attention(nn.Module):
         if self.bias:
             eij = eij + self.b
 
-        a = F.softmax(eij)
+        a = F.softmax(eij, dim=1)
 
         return torch.sum(torch.bmm(a, x), dim=1)
