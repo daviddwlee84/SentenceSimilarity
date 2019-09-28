@@ -214,13 +214,17 @@ class SingleSiameseAttentionRNN(nn.Module):
         # batch_size, max_len, hidden_layer_size
         rnn_backward = rnn_output[:, :, 1, :].permute(1, 0, 2)
 
-        # batch_size, max_len, hidden_layer_size
+        # batch_size, max_len, hidden_layer_size*2
         rnn_cat = torch.cat((rnn_forward, rnn_backward), dim=-1)
 
+        # batch_size, hidden_layer_size*2
         attention = self.attention(rnn_cat)
+        # batch_size, hidden_layer_size
         forward_last_state = rnn_forward[:, -1, :]
+        # batch_size, hidden_layer_size
         backward_last_state = rnn_backward[:, -1, :]
 
+        # batch_size, hidden_layer_size*4
         dense_input = torch.cat(
             (attention, forward_last_state, backward_last_state), dim=-1)
 
