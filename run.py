@@ -121,6 +121,8 @@ def print_settings(args):
     logging.info(f'\tUsing Model\t: {args.model}')
     logging.info(f'\tParameters:')
     logging.info(f'\t Learning Rate\t: {args.lr}')
+    logging.info(f'\t Train Batch\t: {args.batch_size}')
+    logging.info(f'\t Test Batch\t: {args.test_batch_size}')
 
 
 def main():
