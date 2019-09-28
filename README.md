@@ -62,6 +62,11 @@ Model
     * `MPCNN`
       * Multi-Perspective Sentence Similarity Modeling with Convolutional Neural Networks
       * just a "more sentence similarity measurements" version of SiameseCNN (also use Siamese network to encode sentences)
+      * TODO: Model too big to run.... (consume too much GPU memory)
+    * `MPLSTM`: skip
+    * `BiMPM`
+      * Bilateral Multi-Perspective Matching for Natural Language Sentences
+  * `ESIM`
 
 Dataset
 
@@ -102,30 +107,38 @@ usage: run.py [-h] [--dataset dataset] [--mode mode] [--sampling mode]
 Enhanced RCNN on Sentence Similarity
 
 optional arguments:
-  -h, --help           show this help message and exit
-  --dataset dataset    [Ant] Finance or [Quora] Question Pairs (default: Ant)
-  --mode mode          script mode [train/test/both/predict] (default: both)
-  --sampling mode      sampling mode during training (default: balance)
-  --generate-train     use generated negative samples when training (used in
-                       balance sampling)
-  --generate-test      use generated negative samples when testing (used in
-                       balance sampling)
-  --model model        model to use [ERCNN/Transformer] (default: ERCNN)
-  --word-segment WS    chinese word split mode [word/char] (default: char)
-  --batch-size N       input batch size for training (default: 256)
-  --test-batch-size N  input batch size for testing (default: 1000)
-  --k-fold N           k-fold cross validation i.e. number of epochs to train
-                       (default: 10)
-  --lr N               learning rate (default: 0.001)
-  --beta1 N            beta 1 for Adam optimizer (default: 0.9)
-  --beta2 N            beta 2 for Adam optimizer (default: 0.999)
-  --epsilon N          epsilon for Adam optimizer (default: 1e-08)
-  --no-cuda            disables CUDA training
-  --seed N             random seed (default: 16)
-  --test-split N       test data split (default: 0.3)
-  --log-interval N     how many batches to wait before logging training status
-  --test-interval N    how many batches to test during training
-  --not-save-model     for not saving the current model
+  -h, --help             show this help message and exit
+  --dataset dataset      Chinese: Ant, CCSK; English: Quora (default: Ant)
+  --mode mode            script mode [train/test/both/predict/submit(Ant)]
+                         (default: both)
+  --sampling mode        sampling mode during training (default: random)
+  --generate-train       use generated negative samples when training (used in
+                         balance sampling)
+  --generate-test        use generated negative samples when testing (used in
+                         balance sampling)
+  --model model          model to use [ERCNN/Transformer/Siamese(CNN/RNN/LSTM/R
+                         CNN/AttentionRNN)] (default: ERCNN)
+  --word-segment WS      chinese word split mode [word/char] (default: char)
+  --chinese-embed embed  chinese embedding (default: cw2vec)
+  --not-train-embed      whether to freeze the embedding parameters
+  --batch-size N         input batch size for training (default: 256)
+  --test-batch-size N    input batch size for testing (default: 1000)
+  --k-fold N             k-fold cross validation i.e. number of epochs to train
+                         (default: 10)
+  --lr N                 learning rate (default: 0.001)
+  --beta1 N              beta 1 for Adam optimizer (default: 0.9)
+  --beta2 N              beta 2 for Adam optimizer (default: 0.999)
+  --epsilon N            epsilon for Adam optimizer (default: 1e-08)
+  --no-cuda              disables CUDA training
+  --seed N               random seed (default: 16)
+  --test-split N         test data split (default: 0.3)
+  --logdir path          set log directory (default: ./log)
+  --log-interval N       how many batches to wait before logging training
+                         status
+  --test-interval N      how many batches to test during training
+  --not-save-model       for not saving the current model
+  --load-model name      load the specific model checkpoint file
+  --submit-path path:    submission file path (currently for Ant dataset)
 ```
 
 ## Data
@@ -382,8 +395,15 @@ Summary
 Model Source Code
 
 * [ESIM](https://github.com/HsiaoYetGun/ESIM)
-* [BiMPM](https://github.com/zhiguowang/BiMPM)
+* BiMPM
+  * [BiMPM](https://github.com/zhiguowang/BiMPM) - TensorFlow
+  * [galsang/BIMPM-pytorch](https://github.com/galsang/BIMPM-pytorch) - PyTorch
 * [Milti-Perspective-CNN](https://github.com/castorini/MP-CNN-Torch)
+  * [pytorch implementation](https://github.com/tuzhucheng/MP-CNN-Variants)
+
+--
+
+* [tlatkowski/multihead-siamese-nets](https://github.com/tlatkowski/multihead-siamese-nets) Implementation of Siamese Neural Networks built upon multihead attention mechanism for text semantic similarity task
 
 ### Article
 

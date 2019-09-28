@@ -13,6 +13,7 @@ from models.rcnn_transformer import EnhancedRCNN_Transformer
 from models.siamese_models import SiameseModel
 from models.siamese_elements import SingleSiameseCNN, SingleSiameseTextCNN, SingleSiameseRNN, SingleSiameseLSTM, SingleSiameseRCNN, SingleSiameseAttentionRNN
 from models.multi_perspective_cnn import MultiPerspectiveCNN
+from models.bimpm import BiMPM
 from models.functions import l1_distance
 from data_prepare import embedding_loader, tokenize_and_padding
 from utils import get_available_gpu
@@ -143,7 +144,7 @@ def main():
     parser.add_argument('--model', type=str, default='ERCNN', metavar='model',
                         choices=['ERCNN', 'Transformer',
                                  'SiameseCNN', 'SiameseRNN', 'SiameseLSTM', 'SiameseRCNN', 'SiameseAttentionRNN',
-                                 'MPCNN'],
+                                 'MPCNN', 'BiMPM'],
                         help='model to use [ERCNN/Transformer/Siamese(CNN/RNN/LSTM/RCNN/AttentionRNN)] (default: ERCNN)')
     parser.add_argument('--word-segment', type=str, default='char', metavar='WS',
                         choices=['word', 'char'],
@@ -226,6 +227,12 @@ def main():
     if use_cuda:
         logging.info("\tDevices: {}, Current Device: #{}-{}".format(
             torch.cuda.device_count(), torch.cuda.current_device(), torch.cuda.get_device_name()))
+        logging.info('current memory allocated: {}MB'.format(
+            torch.cuda.memory_allocated() / 1024 ** 2))
+        logging.info('max memory allocated: {}MB'.format(
+            torch.cuda.max_memory_allocated() / 1024 ** 2))
+        logging.info('cached memory: {}MB'.format(
+            torch.cuda.memory_cached() / 1024 ** 2))
 
     torch.manual_seed(args.seed)
 
@@ -249,6 +256,9 @@ def main():
             embeddings_matrix, args.max_len, freeze_embed=args.not_train_embed).to(device)
     elif args.model == "MPCNN":
         model = MultiPerspectiveCNN(
+            embeddings_matrix, args.max_len, freeze_embed=args.not_train_embed).to(device)
+    elif args.model == "BiMPM":
+        model = BiMPM(
             embeddings_matrix, args.max_len, freeze_embed=args.not_train_embed).to(device)
     elif args.model[:7] == "Siamese":
         output_size = 512
