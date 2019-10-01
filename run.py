@@ -292,12 +292,16 @@ def main():
                                                      freeze_embed=args.not_train_embed).to(device)
         model = SiameseModel(single_model, similarity_function,
                              output_size).to(device)
-    if use_cuda and torch.cuda.device_count() > 1:
-        logging.info('Use multiple GPUs ({})'.format(
-            torch.cuda.device_count()))
-        model = torch.nn.DataParallel(model)  # warp model with nn.DataParallel
+    if use_cuda
+       if torch.cuda.device_count() > 1:
+            logging.info('Model running on multiple GPUs ({})'.format(
+                torch.cuda.device_count()))
+            # warp model with nn.DataParallel
+            model = torch.nn.DataParallel(model)
+        else:
+            logging.info('Model running on single GPU')
     else:
-        logging.info('Use single GPU')
+        logging.info('Model running on CPU')
 
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(
         args.beta1, args.beta2), eps=args.epsilon)
