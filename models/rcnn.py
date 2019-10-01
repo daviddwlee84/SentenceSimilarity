@@ -50,6 +50,9 @@ class EnhancedRCNN(nn.Module):
         x1 = self.dropout(q1_embed)
         x2 = self.dropout(q2_embed)
 
+        # fix the warning message when using multiple GPUs
+        self.q1_rnn.flatten_parameters()
+        self.q2_rnn.flatten_parameters()
         # batch_size, max_len, lstm_dim*2
         q1_output, q1_hn = self.q1_rnn(x1)
         q2_output, q2_hn = self.q2_rnn(x2)

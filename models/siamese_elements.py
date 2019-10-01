@@ -76,6 +76,8 @@ class SingleSiameseRNN(nn.Module):
     def forward(self, sentence):
         # batch_size, max_len, embed_dim
         sent_embed = self.embedding(sentence)
+        # fix the warning message when using multiple GPUs
+        self.rnn.flatten_parameters()
         # batch_size, max_len, linear_size
         rnn_output, hn = self.rnn(sent_embed)
         # batch_size, linear_size
@@ -103,6 +105,8 @@ class SingleSiameseLSTM(nn.Module):
     def forward(self, sentence):
         # batch_size, max_len, embed_dim
         sent_embed = self.embedding(sentence)
+        # fix the warning message when using multiple GPUs
+        self.rnn.flatten_parameters()
         # batch_size, max_len, linear_size
         lstm_output, (hn, cn) = self.rnn(sent_embed)
         # batch_size, linear_size
@@ -164,6 +168,8 @@ class SingleSiameseRCNN(nn.Module):
     def forward(self, sentence):
         # batch_size, max_len, embed_dim
         sent_embed = self.embedding(sentence)
+        # fix the warning message when using multiple GPUs
+        self.rnn.flatten_parameters()
         # batch_size, max_len, hidden_layer_size*2
         rnn_output, hn = self.rnn(sent_embed)
         # batch_size, max_len, hidden_layer_size*2
@@ -206,6 +212,8 @@ class SingleSiameseAttentionRNN(nn.Module):
     def forward(self, sentence):
         # batch_size, max_len, embed_dim
         sent_embed = self.embedding(sentence)
+        # fix the warning message when using multiple GPUs
+        self.rnn.flatten_parameters()
         # max_len, batch_size, num_directions, hidden_layer_size
         rnn_output = self.rnn(sent_embed)[0].view(
             self.seq_len, -1, self.num_direction, self.hidden_layer_size)

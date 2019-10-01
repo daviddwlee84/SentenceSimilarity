@@ -200,12 +200,18 @@ def main():
             args.mode, args.sampling, args.chinese_embed, train_embed_txt, args.model, args.dataset, args.word_segment,
             ctime.tm_mon, ctime.tm_mday, ctime.tm_hour, ctime.tm_min
         )
+        proctitle = '{}_{}_{}'.format(
+            args.model, args.dataset, args.word_segment
+        )
     else:  # English dataset
         logfilename = '{}_{}_{}_{}_glove{}_{}-{}_{}-{}'.format(
             args.mode, args.sampling, args.dataset, args.model, train_embed_txt,
             ctime.tm_mon, ctime.tm_mday, ctime.tm_hour, ctime.tm_min
         )
-    setproctitle('WWW--' + logfilename)  # set process name
+        proctitle = '{}_{}'.format(
+            args.model, args.dataset
+        )
+    setproctitle(proctitle)  # set process name
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(name)-13s %(levelname)-8s %(message)s',
                         datefmt='%m-%d %H:%M',
@@ -286,6 +292,13 @@ def main():
                                                      freeze_embed=args.not_train_embed).to(device)
         model = SiameseModel(single_model, similarity_function,
                              output_size).to(device)
+    if use_cuda and torch.cuda.device_count() > 1:
+        logging.info('Use multiple GPUs ({})'.format(
+            torch.cuda.device_count()))
+        model = torch.nn.DataParallel(model)  # warp model with nn.DataParallel
+    else:
+        logging.info('Use single GPU')
+
     optimizer = optim.Adam(model.parameters(), lr=args.lr, betas=(
         args.beta1, args.beta2), eps=args.epsilon)
     logging.info(f'Model Complexity (Parameters):')

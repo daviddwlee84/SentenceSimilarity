@@ -211,6 +211,8 @@ class BiMPM(nn.Module):
         h = self.dropout(h)
 
         # ----- Context Representation Layer -----
+        # fix the warning message when using multiple GPUs
+        self.context_LSTM.flatten_parameters()
         # (batch, seq_len, hidden_size * 2)
         con_p, _ = self.context_LSTM(p)
         con_h, _ = self.context_LSTM(h)
@@ -313,6 +315,8 @@ class BiMPM(nn.Module):
         mv_h = self.dropout(mv_h)
 
         # ----- Aggregation Layer -----
+        # fix the warning message when using multiple GPUs
+        self.aggregation_LSTM.flatten_parameters()
         # (batch, seq_len, l * 8) -> (2, batch, hidden_size)
         _, (agg_p_last, _) = self.aggregation_LSTM(mv_p)
         _, (agg_h_last, _) = self.aggregation_LSTM(mv_h)
