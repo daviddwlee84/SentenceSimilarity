@@ -225,7 +225,9 @@ def main():
     # add the handler to the root logger
     logging.getLogger('').addHandler(console)
 
-    tbwriter = SummaryWriter(logdir=f'{args.logdir}', comment=logfilename)
+    os.makedirs(f'{args.logdir}/{proctitle}_TensorBoardLog')
+    tbwriter = SummaryWriter(
+        logdir=f'{args.logdir}/{proctitle}_TensorBoardLog')
 
     # PyTorch device configure (cuda/GPU or CPU)
     use_cuda = not args.no_cuda and torch.cuda.is_available()

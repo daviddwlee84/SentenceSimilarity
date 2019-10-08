@@ -36,4 +36,4 @@ echo "kill -9" `ps x | grep run.py | grep -v grep | awk '{print $1}' | xargs`
 echo "== Tensorboard =="
 echo "Tensorboard should be run at port 6006"
 echo "To terminate it just press CTRL+C to quit"
-tensorboard --logdir LOGDIR
+tensorboard --logdir LOGDIR/.
