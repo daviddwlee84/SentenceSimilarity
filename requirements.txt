@@ -5,6 +5,7 @@ torch
 torchvision
 tensorflow
 keras
+tensorboardX
 gensim
 jieba
 setproctitle

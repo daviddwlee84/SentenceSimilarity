@@ -15,7 +15,7 @@ import logging
 logger = logging.getLogger('balance_train')
 
 
-def train(args, model, tokenizer, device, optimizer):
+def train(args, model, tokenizer, device, optimizer, tbwriter):
     model.train()
 
     X1, X2, Y, _, _, _ = train_test_data_loader(
@@ -61,8 +61,14 @@ def train(args, model, tokenizer, device, optimizer):
                     epoch + 1, batch_idx *
                     len(input_1), train_data_helper.dataset_size,
                     100. * batch_idx / len(train_data_helper), loss.item()))
+                tbwriter.add_scalar('data/train/loss', loss.item(),
+                                    epoch * len(train_dataset.dataset) + batch_idx * len(input_1))
 
-        _test_on_dataloader(args, model, tokenizer, device, test_data_helper)
+        valid_loss, valid_acc, valid_f1 = _test_on_dataloader(
+            args, model, tokenizer, device, test_data_helper)
+        tbwriter.add_scalar('data/valid/loss', valid_loss, epoch + 1)
+        tbwriter.add_scalar('data/valid/acc', valid_acc, epoch + 1)
+        tbwriter.add_scalar('data/valid/f1', valid_f1, epoch + 1)
         model.train()  # switch the model mode back to train
         if not args.not_save_model:
             save_model(args, model, epoch)
@@ -118,6 +124,8 @@ def _test_on_dataloader(args, model, tokenizer, device, test_data_helper, datase
             accumulated_target, accumulated_pred))))
         logger.info('Classification Report:\n{}'.format(classification_report(
             accumulated_target, accumulated_pred)))
+
+    return test_loss, correct / test_data_helper.dataset_size, f1_score(accumulated_target, accumulated_pred, average='macro')
 
 
 def test(args, model, tokenizer, device):

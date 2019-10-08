@@ -39,6 +39,14 @@ python3 run.py --dataset [Ant/CCSK/PiPiDai] --model [model name] --word-segment 
 # train all the model at once use ./train_all_data_at_once.sh
 ## English
 python3 run.py --dataset Quora --model [model name]
+
+# Use Tensorboard
+tensorboard --logdir log/same_as_model_log_dir
+## remote connection(forward local port to remote port) (execute in local machine)
+## then you should be able to access with http://localhost:$LOCAL_PORT
+ssh -NfL $LOCAL_PORT:localhost:$REMOTE_PORT $REMOTE_USER@$REMOTE_IP
+### to close connection (just kill the ssh command which run in background)
+ps aux | grep "ssh -NfL" | grep -v grep | awk '{print $2}' | xargs kill
 ```
 
 Model

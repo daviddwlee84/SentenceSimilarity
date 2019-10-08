@@ -7,6 +7,7 @@ from setproctitle import setproctitle
 
 import torch
 import torch.optim as optim
+from tensorboardX import SummaryWriter
 
 from models.rcnn import EnhancedRCNN
 from models.rcnn_transformer import EnhancedRCNN_Transformer
@@ -224,6 +225,8 @@ def main():
     # add the handler to the root logger
     logging.getLogger('').addHandler(console)
 
+    tbwriter = SummaryWriter(logdir=f'{args.logdir}', comment=logfilename)
+
     # PyTorch device configure (cuda/GPU or CPU)
     use_cuda = not args.no_cuda and torch.cuda.is_available()
     # not sure why this won't work
@@ -292,8 +295,8 @@ def main():
                                                      freeze_embed=args.not_train_embed).to(device)
         model = SiameseModel(single_model, similarity_function,
                              output_size).to(device)
-    if use_cuda
-       if torch.cuda.device_count() > 1:
+    if use_cuda:
+        if torch.cuda.device_count() > 1:
             logging.info('Model running on multiple GPUs ({})'.format(
                 torch.cuda.device_count()))
             # warp model with nn.DataParallel
@@ -321,7 +324,7 @@ def main():
         if args.load_model:
             logging.info(f"Loading pretrained model to continue training...")
             load_model(args, model)
-        train(args, model, tokenizer, device, optimizer)
+        train(args, model, tokenizer, device, optimizer, tbwriter)
     if args.mode == "test" or args.mode == "both":
         logging.info(f"Testing on {args.test_split*100}% data...")
         if args.mode != "both":

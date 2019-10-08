@@ -15,7 +15,7 @@ import logging
 logger = logging.getLogger('random_train')
 
 
-def train(args, model, tokenizer, device, optimizer):
+def train(args, model, tokenizer, device, optimizer, tbwriter):
     model.train()
 
     X1, X2, Y, _, _, _ = train_test_data_loader(
@@ -67,8 +67,15 @@ def train(args, model, tokenizer, device, optimizer):
                     epoch + 1, batch_idx *
                     len(input_1), len(train_dataset.dataset),
                     100. * batch_idx / len(train_dataset), loss.item()))
+                tbwriter.add_scalar('data/train/loss', loss.item(),
+                                    epoch * len(train_dataset.dataset) + batch_idx * len(input_1))
 
-        _test_on_dataloader(args, model, device, test_dataset)
+        valid_loss, valid_acc, valid_f1 = _test_on_dataloader(
+            args, model, device, test_dataset)
+        tbwriter.add_scalar('data/valid/loss', valid_loss, epoch + 1)
+        tbwriter.add_scalar('data/valid/acc', valid_acc, epoch + 1)
+        tbwriter.add_scalar('data/valid/f1', valid_f1, epoch + 1)
+
         model.train()  # switch the model mode back to train
         if not args.not_save_model:
             save_model(args, model, epoch)
@@ -120,6 +127,8 @@ def _test_on_dataloader(args, model, device, test_loader, dataset="Valid", final
             accumulated_target, accumulated_pred))))
         logger.info('Classification Report:\n{}'.format(classification_report(
             accumulated_target, accumulated_pred)))
+
+    return test_loss, correct / len(test_loader.dataset), f1_score(accumulated_target, accumulated_pred, average='macro')
 
 
 def test(args, model, tokenizer, device):
