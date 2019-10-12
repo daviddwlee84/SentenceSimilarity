@@ -351,6 +351,16 @@ Add alias in bashrc
 * Use pip source when install packages
   * `alias pipp="pip install -i https://pypi.tuna.tsinghua.edu.cn/simple"`
 
+Install Jupyter notebook use the virtualenv kernel
+
+1. make sure you activate the environment
+2. `pip3 install jupyterlab`
+3. `python3 -m ipykernel install --user --name=python3.6virtualenv`
+4. execute jupyter notebook as normal `jupyter notebook`
+5. Goto kernel > change kernel > select `python3.6virtualenv`
+
+> * [Virtualenv in IPython Jupyter Notebook](https://zhuanlan.zhihu.com/p/33257881)
+
 ## Links
 
 ### Paper
