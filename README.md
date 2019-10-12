@@ -44,7 +44,7 @@ python3 run.py --dataset Quora --model [model name]
 tensorboard --logdir log/same_as_model_log_dir
 ## remote connection(forward local port to remote port) (execute in local machine)
 ## then you should be able to access with http://localhost:$LOCAL_PORT
-ssh -NfL $LOCAL_PORT:localhost:$REMOTE_PORT $REMOTE_USER@$REMOTE_IP
+ssh -NfL $LOCAL_PORT:localhost:$REMOTE_PORT $REMOTE_USER@$REMOTE_IP > /dev/null 2>&1
 ### to close connection (just kill the ssh command which run in background)
 ps aux | grep "ssh -NfL" | grep -v grep | awk '{print $2}' | xargs kill
 ```
@@ -70,7 +70,7 @@ Model
     * `MPCNN`
       * Multi-Perspective Sentence Similarity Modeling with Convolutional Neural Networks
       * just a "more sentence similarity measurements" version of SiameseCNN (also use Siamese network to encode sentences)
-      * TODO: Model too big to run.... (consume too much GPU memory)
+      * TODO: Model too big to run.... (consume too much GPU memory) => Smaller batch size
     * `MPLSTM`: skip
     * `BiMPM`
       * Bilateral Multi-Perspective Matching for Natural Language Sentences
@@ -190,6 +190,9 @@ Generated
 * `log/*`
 
 ## Dataset
+
+* [Jupyter Notebook - Data Analysis](DataAnalysis.ipynb)
+  * `jupyter notebook DataAnalysis.ipynb`
 
 ### ANT Financial Competition
 
