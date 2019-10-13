@@ -14,7 +14,7 @@ logger = logging.getLogger('data_prepare')
 def data_loader(mode="char", dataset="Ant", is_submit=False):
     """ load entire training (labeled) data """
     logger.info(f'Loading data of {dataset} dataset...')
-    if dataset == "Ant" or dataset == "CCSK":
+    if dataset == "Ant" or dataset == "CCKS":
         if dataset == "Ant":
             if is_submit:  # load test file
                 data = pd.read_csv(f"sentence_{mode}_test.csv",
@@ -22,8 +22,8 @@ def data_loader(mode="char", dataset="Ant", is_submit=False):
             else:
                 data = pd.read_csv(f"data/sentence_{mode}_train.csv",
                                    header=None, names=["doc1", "doc2", "label"])
-        elif dataset == "CCSK":
-            data = pd.read_csv(f"data/ccsk_{mode}.csv",
+        elif dataset == "CCKS":
+            data = pd.read_csv(f"data/ccks_{mode}.csv",
                                header=None, names=["doc1", "doc2", "label"])
 
         data["doc1"] = data.apply(lambda x: str(x[0]), axis=1)
@@ -72,7 +72,7 @@ def train_test_data_loader(random_seed, mode="word", dataset="Ant", test_split=0
 def embedding_loader(embedding_folder="word2vec", embed="cw2vec", mode="word", dataset="Ant"):
     X1, X2, _ = data_loader(mode, dataset)
 
-    if dataset == "Ant" or dataset == "CCSK" or dataset == "PiPiDai":
+    if dataset == "Ant" or dataset == "CCKS" or dataset == "PiPiDai":
         tokenizer_pickle_file = f'{embedding_folder}/{dataset}_{mode}_tokenizer.pickle'
         embed_pickle_file = f'{embedding_folder}/{dataset}_{mode}_embed_matrix.pickle'
     elif dataset == "Quora":
@@ -99,7 +99,7 @@ def embedding_loader(embedding_folder="word2vec", embed="cw2vec", mode="word", d
     else:
         word_index = tokenizer.word_index
 
-        if dataset == "Ant" or dataset == "CCSK":
+        if dataset == "Ant" or dataset == "CCKS":
             if embed == "cw2vec":
                 embed_model = KeyedVectors.load_word2vec_format(
                     f"{embedding_folder}/substoke_{mode}.vec.avg", binary=False, encoding='utf8')

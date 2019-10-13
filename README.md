@@ -28,14 +28,14 @@ Usage
 # Data preprocessing
 ## Ant
 python3 ant_preprocess.py [word/char] train
-## CCSK
-python3 ccsk_preprocess.py
+## CCKS
+python3 ccks_preprocess.py
 ## PiPiDai
 python3 pipidai_preprocess.py
 
 # Train & Evaluate
 ## Chinese
-python3 run.py --dataset [Ant/CCSK/PiPiDai] --model [model name] --word-segment [word/char]
+python3 run.py --dataset [Ant/CCKS/PiPiDai] --model [model name] --word-segment [word/char]
 # train all the model at once use ./train_all_data_at_once.sh
 ## English
 python3 run.py --dataset Quora --model [model name]
@@ -79,7 +79,7 @@ Model
 Dataset
 
 * `Ant` - Chinese
-* `CCSK` - Chinese
+* `CCKS` - Chinese
 * `PiPiDai` - Chinese (encoded)
 * `Quora` - English
 
@@ -116,7 +116,7 @@ Enhanced RCNN on Sentence Similarity
 
 optional arguments:
   -h, --help             show this help message and exit
-  --dataset dataset      Chinese: Ant, CCSK; English: Quora (default: Ant)
+  --dataset dataset      Chinese: Ant, CCKS; English: Quora (default: Ant)
   --mode mode            script mode [train/test/both/predict/submit(Ant)]
                          (default: both)
   --sampling mode        sampling mode during training (default: random)
@@ -159,8 +159,8 @@ Original
 * `word2vec/substoke_word.vec.avg` - Ant Financial
 * `data/stopwords.txt` - Ant Financial
 * `word2vec/glove.word2vec.txt` - Quora Question Pairs
-* `raw_data/task3_train.txt` - CCSK 2018
-* `raw_data/task3_dev.txt` - CCSK 2018
+* `raw_data/task3_train.txt` - CCKS 2018
+* `raw_data/task3_dev.txt` - CCKS 2018
 
   ```sh
   wget http://nlp.stanford.edu/data/glove.840B.300d.zip
@@ -238,7 +238,9 @@ Data
     * question1, question2
 * about 63% non-duplicate questions and 37% duplicate questions in the training data set
 
-### CCSK 2018
+### CCKS 2018
+
+> CCKS: China Conference on Knowledge Graph and Semantic Computing
 
 * [微眾銀行智能客服問句匹配大賽](https://biendata.com/competition/CCKS2018_3/)
 

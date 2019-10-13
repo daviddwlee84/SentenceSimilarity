@@ -19,9 +19,9 @@ export CUDA_VISIBLE_DEVICES=0,1
 nohup python3 run.py --dataset Ant --word-segment char --lr 0.001 $SHARED_ARGS > /dev/null 2> $LOGDIR/AntCharTrainErr.log &
 nohup python3 run.py --dataset Ant --word-segment word --lr 0.001 $SHARED_ARGS > /dev/null 2> $LOGDIR/AntWordTrainErr.log &
 
-# CCSK
-nohup python3 run.py --dataset CCSK --word-segment char --lr 0.001 $SHARED_ARGS > /dev/null 2> $LOGDIR/CCSKCharTrainErr.log &
-nohup python3 run.py --dataset CCSK --word-segment word --lr 0.001 $SHARED_ARGS > /dev/null 2> $LOGDIR/CCSKWordTrainErr.log &
+# CCKS
+nohup python3 run.py --dataset CCKS --word-segment char --lr 0.001 $SHARED_ARGS > /dev/null 2> $LOGDIR/CCKSCharTrainErr.log &
+nohup python3 run.py --dataset CCKS --word-segment word --lr 0.001 $SHARED_ARGS > /dev/null 2> $LOGDIR/CCKSWordTrainErr.log &
 
 # export CUDA_VISIBLE_DEVICES=1
 # PiPiDai

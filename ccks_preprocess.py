@@ -39,11 +39,11 @@ def process(datapath="raw_data/task3_train.txt"):
 
     # word segment with char
     sentences = _char_process(lines, stopwords)
-    _save_csv(sentences, 'data/ccsk_char.csv')
+    _save_csv(sentences, 'data/ccks_char.csv')
 
     # word segment with word
     sentences = _word_process(lines, stopwords)
-    _save_csv(sentences, 'data/ccsk_word.csv')
+    _save_csv(sentences, 'data/ccks_word.csv')
 
 
 if __name__ == "__main__":

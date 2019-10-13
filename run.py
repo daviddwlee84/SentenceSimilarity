@@ -131,8 +131,8 @@ def main():
     parser = argparse.ArgumentParser(
         description='Enhanced RCNN on Sentence Similarity')
     parser.add_argument('--dataset', type=str, default='Ant', metavar='dataset',
-                        choices=['Ant', 'CCSK', 'PiPiDai', 'Quora'],
-                        help='Chinese: Ant, CCSK; English: Quora (default: Ant)')
+                        choices=['Ant', 'CCKS', 'PiPiDai', 'Quora'],
+                        help='Chinese: Ant, CCKS; English: Quora (default: Ant)')
     parser.add_argument('--mode', type=str, default='both', metavar='mode',
                         choices=['train', 'test', 'both', 'predict', 'submit'],
                         help='script mode [train/test/both/predict/submit(Ant)] (default: both)')
