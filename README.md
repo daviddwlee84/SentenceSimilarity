@@ -340,7 +340,7 @@ Data
 
 ```sh
 # this will create a env_name folder in current directory
-virtualenv python=/path/to/python3.x env_name
+virtualenv --python=/path/to/python3.x env_name
 
 # activate the environment
 source ./env_name/bin/activate
