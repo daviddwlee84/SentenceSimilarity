@@ -1,4 +1,6 @@
-# Enhanced RCNN
+# Sentence Similarity
+
+(mainly based on Enhanced-RCNN model and other baselines)
 
 ## Getting Started
 
@@ -345,6 +347,8 @@ virtualenv --python=/path/to/python3.x env_name
 # activate the environment
 source ./env_name/bin/activate
 ```
+
+> * [Unable to install pyhton 3.7 version on ubuntu 16.04 error Couldn't find any package by regex 'python3.7 | DigitalOcean](https://www.digitalocean.com/community/questions/unable-to-install-pyhton-3-7-version-on-ubuntu-16-04-error-couldn-t-find-any-package-by-regex-python3-7)
 
 Add alias in bashrc
 
