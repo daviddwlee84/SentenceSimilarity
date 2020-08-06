@@ -42,7 +42,7 @@ class Inception1(nn.Module):
         self.global_max_pool = nn.MaxPool1d(input_dim)
 
     def forward(self, x):
-        out = self.cnn(x)
+        x = self.cnn(x)
         avg_pool, max_pool = mean_max(x)
         return torch.cat((avg_pool, max_pool), dim=1)
 
@@ -56,7 +56,7 @@ class Inception2(nn.Module):
         )
 
     def forward(self, x):
-        out = self.cnn(x)
+        x = self.cnn(x)
         avg_pool, max_pool = mean_max(x)
         return torch.cat((avg_pool, max_pool), dim=1)
 
@@ -72,6 +72,6 @@ class Inception3(nn.Module):
         )
 
     def forward(self, x):
-        out = self.cnn(x)
+        x = self.cnn(x)
         avg_pool, max_pool = mean_max(x)
         return torch.cat((avg_pool, max_pool), dim=1)
