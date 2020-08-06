@@ -6,8 +6,10 @@
 
 Clone this project (make sure `git-lfs` is installed)
 
+> Sorry for the limitation of the [Git-LFS bandwidth quota](https://docs.github.com/en/github/managing-large-files/about-storage-and-bandwidth-usage), might have some problem to clone this project.
+
 ```sh
-git lfs clone --depth=1 https://github.com/daviddwlee84/Enhanced-RCNN.git
+git lfs clone --depth=1 https://github.com/daviddwlee84/SentenceSimilarity.git
 ```
 
 Quick Execute All
@@ -150,6 +152,12 @@ optional arguments:
   --load-model name      load the specific model checkpoint file
   --submit-path path:    submission file path (currently for Ant dataset)
 ```
+
+> Related Additional Datasets
+>
+> * [xiaohai-AI/lcqmc_data](https://github.com/xiaohai-AI/lcqmc_data)
+> * [zzy99/epidemic-sentence-pair](https://github.com/zzy99/epidemic-sentence-pair)
+> * [IAdmireu/ChineseSTS](https://github.com/IAdmireu/ChineseSTS)
 
 ## Data
 
