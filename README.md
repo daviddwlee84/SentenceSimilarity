@@ -4,13 +4,15 @@
 
 ## Getting Started
 
-Clone this project (make sure `git-lfs` is installed)
+To clone this project, make sure `git-lfs` is installed.
 
-> Sorry for the limitation of the [Git-LFS bandwidth quota](https://docs.github.com/en/github/managing-large-files/about-storage-and-bandwidth-usage), might have some problem to clone this project.
+**Please use the following command to clone this project**:
 
 ```sh
-git lfs clone --depth=1 https://github.com/daviddwlee84/SentenceSimilarity.git
+GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/daviddwlee84/SentenceSimilarity.git
 ```
+
+> [Clone repo without downloading real files with GitLFS](https://github.com/git-lfs/git-lfs/issues/227#issuecomment-424100493)
 
 Quick Execute All
 
@@ -480,6 +482,12 @@ RuntimeError: Input type (torch.cuda.FloatTensor) and weight type (torch.FloatTe
 > somehow the `nn.Module` in a list can't be auto connect `to(device)`
 
 ## Appendix
+
+> Sorry for the limitation of the [Git-LFS bandwidth quota](https://docs.github.com/en/github/managing-large-files/about-storage-and-bandwidth-usage), might have some problem to clone this project.
+>
+> ```sh
+> git lfs clone --depth=1 https://github.com/daviddwlee84/SentenceSimilarity.git
+> ```
 
 ### Attention
 
