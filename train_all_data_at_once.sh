@@ -1,5 +1,5 @@
 #!/bin/bash
-# ./test_all_data_at_once Model Shared_Args
+# ./train_all_data_at_once Model Shared_Args
 
 MODEL=${1:-'ERCNN'}
 LOGDIR=log/${MODEL}_All_`date +"%m_%d-%H_%M_%S"`

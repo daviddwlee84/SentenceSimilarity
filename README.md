@@ -489,6 +489,9 @@ RuntimeError: Input type (torch.cuda.FloatTensor) and weight type (torch.FloatTe
 > git lfs clone --depth=1 https://github.com/daviddwlee84/SentenceSimilarity.git
 > ```
 
+* [Hosting LFS objects externally | Git Large File Storage (LFS) | GitLab](https://docs.gitlab.com/ee/topics/git/lfs/#hosting-lfs-objects-externally)
+  * `git config -f .lfsconfig lfs.url https://gitlab.com/daviddwlee84/SentenceSimilarity.git/info/lfs`
+
 ### Attention
 
 ```py
